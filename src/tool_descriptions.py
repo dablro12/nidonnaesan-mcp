@@ -14,14 +14,17 @@ CHAINS = {
 USE FIRST for: 추천해줘, 찾아줘, 있어?, 경쟁률 낮은, 초보, 맞춤, 마감 임박 (unless only tips asked).
 
 PARAMETERS:
+- `user_request` or `need_text` — 사용자 **한국어 원문 그대로** (필수 권장). 예: "서울쪽 레스토랑 협찬 추천해줘"
 - `mode=easy_pick` — 협찬 처음 / 경쟁률 낮은 / 쉬운 협찬
-- `mode=by_need` + `need_text` — 사용자 **원문 그대로** (예: "서울쪽 레스토랑 협찬")
+- `mode=by_need` + need_text — 니즈 맞춤
 - `mode=urgent` — 마감 하루 안 남은 / D-0 / D-1
-- `sort_by=low_competition` — 경쟁 덜한 순
+- `sort_by=low_competition` — 경쟁 덜한 순 (NOT "competition")
 - `table_format=compact` (default) — 4컬럼 표
 
-NEVER: need_text 대신 filters만 쓰기 — "서울 맛집"은 need_text에 넣으세요.
-NEVER: 경쟁률 낮은 요청에 mode=by_need만 쓰고 need_text 비우기 — `mode=easy_pick` 사용.
+FILTERS (if used): Korean only — region `서울|강남|부평`, category `맛집|숙박|뷰티`. English `Seoul/Western` works but need_text is better.
+
+NEVER: filters만 쓰고 need_text 비우기 — always pass user_request.
+NEVER: sort_by=`competition` — use `low_competition` or mode=`easy_pick`.
 """.strip(),
     "get_today_hot_campaigns": """
 USE for: 오늘 인기 / 핫 / TOP / 신청자 많은 협찬.

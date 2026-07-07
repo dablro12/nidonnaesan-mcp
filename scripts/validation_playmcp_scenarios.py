@@ -144,9 +144,20 @@ async def build_scenarios() -> list[Scenario]:
         ),
         Scenario(
             "hard",
-            "플랫폼 다양성",
-            get_today_hot_campaigns,
-            {"top_n": 5},
+            "영문 filters fallback",
+            get_campaign_recommendations,
+            {
+                "mode": "by_need",
+                "filters": {"region": "Seoul", "category": "Western"},
+                "top_n": 5,
+            },
+            ["table"],
+        ),
+        Scenario(
+            "hard",
+            "sort_by competition",
+            get_campaign_recommendations,
+            {"sort_by": "competition", "top_n": 5},
             ["table"],
         ),
     ]

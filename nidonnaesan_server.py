@@ -32,6 +32,7 @@ from mcp_tool_result import install_tool_error_wrapping
 from naver_shopping import search_market_price
 from price_enrichment import clean_search_keyword
 from product_research import research_product_context
+from filter_aliases import localize_filters, normalize_sort_by
 from profile_store import filter_defaults, get_profile, set_profile
 from tips_loader import get_sponsorship_tip
 from tool_descriptions import tool_description
@@ -62,9 +63,8 @@ def _resolve_filters(
     filters: dict[str, Any] | None,
     profile: dict[str, Any] | None,
 ) -> dict[str, Any]:
-    if filters:
-        return filters
-    return filter_defaults(profile or {})
+    raw = filters if filters else filter_defaults(profile or {})
+    return localize_filters(raw) if raw else {}
 
 
 def _format_recommendation_header(meta: dict[str, Any], need_text: str | None = None) -> str:
@@ -93,6 +93,7 @@ def _format_recommendation_header(meta: dict[str, Any], need_text: str | None = 
 async def get_campaign_recommendations(
     mode: str = "by_need",
     need_text: str | None = None,
+    user_request: str | None = None,
     top_n: int = 5,
     sort_by: str = "popular",
     table_format: str = "compact",
@@ -104,20 +105,26 @@ async def get_campaign_recommendations(
     stored = get_profile(profile_fallback=profile) or profile
     effective_filters = _resolve_filters(filters, stored)
     if region:
-        effective_filters = {**effective_filters, "region": region}
+        effective_filters = {**effective_filters, "region": localize_filters({"region": region}).get("region", region)}
+
+    effective_need = (need_text or user_request or "").strip() or None
+    effective_sort = normalize_sort_by(sort_by)
+
+    if effective_sort == "low_competition" and not effective_need:
+        mode = "easy_pick"
 
     campaigns = await fetch_all_campaigns()
     picked, meta = recommend_campaigns(
         campaigns,
         mode=mode,
-        need_text=need_text,
+        need_text=effective_need,
         top_n=top_n,
         filters=effective_filters,
-        sort_by=sort_by,
+        sort_by=effective_sort,
         max_dday=max_dday,
-        region=region or effective_filters.get("region"),
+        region=effective_filters.get("region"),
     )
-    title = _format_recommendation_header(meta, need_text)
+    title = _format_recommendation_header(meta, effective_need or meta.get("synthetic_need_text"))
     return await build_campaign_table(picked, title=title, table_format=table_format)
 
 
@@ -463,6 +470,9 @@ install_tool_error_wrapping(mcp)
 
 
 def main() -> None:
+    from campaign_sync import start_background_sync
+
+    start_background_sync()
     mcp.run(transport="streamable-http")
 
 

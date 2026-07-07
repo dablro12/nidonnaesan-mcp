@@ -11,6 +11,7 @@ from campaign_filters import (
     sort_by_popularity,
     urgent_campaigns,
 )
+from filter_aliases import normalize_sort_by
 from experience_value import enrich_campaign
 
 
@@ -72,10 +73,18 @@ def recommend_campaigns(
     region: str | None = None,
 ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     """반환: (캠페인 목록, 메타)."""
-    meta: dict[str, Any] = {"mode": mode, "sort_by": sort_by}
+    meta: dict[str, Any] = {"mode": mode, "sort_by": normalize_sort_by(sort_by)}
 
-    if mode == "by_need" and not need_text and sort_by == "low_competition":
+    sort_by = normalize_sort_by(sort_by)
+
+    if sort_by == "low_competition" and mode == "by_need" and not need_text:
         mode = "easy_pick"
+
+    if mode == "by_need" and not need_text and filters:
+        from filter_aliases import filters_to_need_text
+
+        need_text = filters_to_need_text(filters)
+        meta["synthetic_need_text"] = need_text
 
     if mode == "easy_pick":
         picked, sub = easy_pick_campaigns(campaigns, top_n=top_n, filters=filters)

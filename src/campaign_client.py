@@ -19,7 +19,7 @@ CAMPAIGN_API_BASE = os.getenv(
 CAMPAIGN_DATA_FILE = Path(
     os.getenv("CAMPAIGN_DATA_FILE", str(data_path("campaigns", "campaigns.json")))
 )
-_CACHE_TTL_SEC = int(os.getenv("CAMPAIGN_CACHE_TTL_SEC", "300"))
+_CACHE_TTL_SEC = int(os.getenv("CAMPAIGN_CACHE_TTL_SEC", "900"))
 _PAGE_SIZE = 500
 
 _store: dict[str, Any] = {

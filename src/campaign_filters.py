@@ -6,6 +6,7 @@ import re
 from typing import Any
 
 from campaign_geo import expand_region_query, match_region, parse_need_intent
+from filter_aliases import localize_filters
 
 CATEGORY_KEYWORDS: dict[str, list[str]] = {
     "디지털": ["디지털", "IT", "전자", "스마트", "태블릿", "노트북", "이어폰", "가전"],
@@ -26,11 +27,12 @@ UI_TO_API_CATEGORY = {
 
 
 def normalize_filters(filters: dict[str, Any] | None) -> dict[str, Any]:
-    if not filters:
+    localized = localize_filters(filters)
+    if not localized:
         return {}
     out: dict[str, Any] = {}
     for key in ("mediaType", "type", "platform", "category", "region", "max_dday"):
-        val = filters.get(key)
+        val = localized.get(key)
         if val is not None and val != "전체" and val != "":
             out[key] = val
     return out
