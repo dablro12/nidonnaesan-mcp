@@ -4,14 +4,14 @@
 
 # 니돈내산
 
-### 협찬 받고, 신청까지 한 번에
+### 협찬 받고, 추천까지 한 번에
 
 <br>
 
 [![PlayMCP](https://img.shields.io/badge/PlayMCP-사용_가능-FEE500?style=flat-square)](https://playmcp.kakaocloud.io)
 [![AGENTIC PLAYER 10](https://img.shields.io/badge/카카오_2026-AGENTIC_PLAYER_10-000?style=flat-square&logo=kakaotalk&logoColor=FEE500)](https://playmcp.kakaocloud.io)
 
-> 카카오톡에서 **한 마디**로 맞는 협찬을 찾고, 가치를 판단하고, 신청 문구까지 받는 리뷰어 코파일럿입니다.  
+> 카카오톡에서 **한 마디**로 맞는 협찬을 찾고 추천받는 리뷰어 도우미입니다.  
 > **블로거 · 인스타 리뷰어 · 협찬 초보자** 모두 사용할 수 있습니다.
 
 </div>
@@ -20,7 +20,7 @@
 
 ## MCP 소개
 
-체험단모음 API와 운영자 검증 노하우를 바탕으로 **협찬 탐색 → 체험가치 판단 → 신청 한마디 → 팁 전수**까지 한 번에 돕는 MCP 서버입니다.
+체험단모음 API와 운영자 검증 노하우를 바탕으로 **협찬 탐색 → 맞춤 추천 → 체험가치 판단 → 팁 전수**까지 한 번에 돕는 MCP 서버입니다.
 
 **핵심 기능**
 - `get_campaign_recommendations` 통합 추천 — **초보(easy_pick)** · **니즈(by_need)** · **마감임박(urgent)**
@@ -31,7 +31,7 @@
 - 협찬 적성 테스트 + 프로필 저장 (Stateless + set_profile)
 
 **실사용 예시**  
-카카오톡에서 「협찬 처음인데 서울 맛집 추천해줘」라고 물으면, AI가 **적성 테스트 → 경쟁률 낮은 캠페인 5개 → 신청 한마디**까지 한 번에 연결합니다.
+카카오톡에서 「협찬 처음인데 서울 맛집 추천해줘」라고 물으면, AI가 **적성 테스트 → 경쟁률 낮은 캠페인 5개 표**로 추천합니다.
 
 ---
 
@@ -170,6 +170,7 @@ python nidonnaesan_server.py
 
 | 문서 | 내용 |
 |------|------|
+| [기능설명서](docs/기능설명서.md) | 서비스·기능·대화 예시 전체 |
 | [PRD](docs/기획서/PRD.md) | 제품 기획 |
 | [TOOL_SPEC](docs/기획서/TOOL_SPEC.md) | MCP 툴 스펙 |
 | [DEPLOY_KC](docs/DEPLOY_KC.md) | KC/GHCR 배포 |

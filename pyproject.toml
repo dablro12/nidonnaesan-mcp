@@ -1,7 +1,7 @@
 [project]
 name = "nidonnaesan-mcp"
 version = "0.3.0"
-description = "니돈내산 - 협찬 받고, 신청까지 한 번에 MCP"
+description = "니돈내산 - 협찬 받고, 추천까지 한 번에 MCP"
 requires-python = ">=3.10"
 dependencies = [
     "mcp[cli]>=1.2.0",
