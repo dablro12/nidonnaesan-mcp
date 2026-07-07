@@ -4,7 +4,8 @@ from tips_loader import get_sponsorship_tip, load_tip, match_topic_by_query
 def test_load_selection_rate_tip():
     tip = load_tip("selection_rate")
     assert tip["id"] == "selection_rate"
-    assert len(tip.get("sections", [])) >= 5
+    assert tip.get("source") == "markdown"
+    assert len(tip.get("sections_markdown") or "") > 500
 
 
 def test_query_match_ad_disclosure():

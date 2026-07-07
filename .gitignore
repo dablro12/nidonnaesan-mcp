@@ -3,3 +3,5 @@ __pycache__/
 .pytest_cache/
 *.pyc
 data/profiles.db
+# 대용량 — API 동기화 산출물 (scripts/sync_campaigns.py)
+data/campaigns/campaigns.json

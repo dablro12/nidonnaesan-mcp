@@ -1,14 +1,23 @@
-"""협찬 팁 정적 데이터 로더."""
+"""협찬 팁 로더 — Markdown 우선, JSON fallback."""
 
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 from typing import Any
 
 TIPS_DIR = Path(__file__).resolve().parent / "data" / "tips"
 
-TOPIC_FILES = {
+TOPIC_MD_FILES: dict[str, str] = {
+    "selection_rate": "체험단 선정률 높이는 방법 7가지.md",
+    "blog_index": "블로그 지수란? 체험단 선정에 미치는 영향.md",
+    "platform": "체험단 플랫폼 특징 총정리 (2026년 기준).md",
+    "ad_disclosure": "체험단 후기 광고 표기법.md",
+    "posting_omission": "[체험단 불이익 피하기] 포스팅 누락이란? 체험단 불이익 예방하는 법.md",
+}
+
+TOPIC_JSON_FILES: dict[str, str] = {
     "selection_rate": "selection-rate-7.json",
     "blog_index": "blog-index.json",
     "platform": "platform-guide.json",
@@ -26,14 +35,71 @@ def load_index() -> dict[str, Any]:
     return _load_json(TIPS_DIR / "index.json")
 
 
+def _topic_meta(topic_id: str) -> dict[str, Any]:
+    for topic in load_index().get("topics", []):
+        if topic["id"] == topic_id:
+            return topic
+    return {"id": topic_id, "title": topic_id}
+
+
+def _extract_operator_note(md: str) -> str:
+    if "운영자 노트" in md:
+        after = md.split("운영자 노트", 1)[-1]
+        m = re.search(r"\*([^*]+)\*", after, re.DOTALL)
+        if m:
+            return m.group(1).strip()
+    m = re.search(r"—[^\n]*\n\s*\*([^*]+)\*", md, re.DOTALL)
+    return m.group(1).strip() if m else ""
+
+
+def _extract_summary(md: str) -> str:
+    lines = [ln.strip() for ln in md.splitlines() if ln.strip()]
+    for ln in lines:
+        if ln.startswith("#") or ln.startswith("**") or ln.startswith("-"):
+            continue
+        if len(ln) > 30:
+            return ln[:300]
+    return lines[0][:300] if lines else ""
+
+
+def _load_from_markdown(topic_id: str) -> dict[str, Any] | None:
+    filename = TOPIC_MD_FILES.get(topic_id)
+    if not filename:
+        return None
+    path = TIPS_DIR / filename
+    if not path.exists():
+        return None
+    content = path.read_text(encoding="utf-8").strip()
+    if not content:
+        return None
+    meta = _topic_meta(topic_id)
+    return {
+        "id": topic_id,
+        "title": meta.get("title", topic_id),
+        "summary": _extract_summary(content),
+        "operator_note": _extract_operator_note(content),
+        "sections_markdown": content,
+        "action_checklist": [],
+        "keywords": meta.get("keywords", []),
+        "source": "markdown",
+    }
+
+
 def load_tip(topic_id: str) -> dict[str, Any]:
-    filename = TOPIC_FILES.get(topic_id)
+    md_tip = _load_from_markdown(topic_id)
+    if md_tip:
+        return md_tip
+    filename = TOPIC_JSON_FILES.get(topic_id)
     if not filename:
         raise ValueError(f"Unknown tip topic: {topic_id}")
-    return _load_json(TIPS_DIR / filename)
+    tip = _load_json(TIPS_DIR / filename)
+    tip["source"] = "json"
+    return tip
 
 
 def sections_to_markdown(tip: dict[str, Any]) -> str:
+    if tip.get("sections_markdown"):
+        return tip["sections_markdown"]
     lines = [f"## {tip['title']}", "", tip.get("summary", "")]
     if tip.get("operator_note"):
         lines.extend(["", f"> **운영자 노트**: {tip['operator_note']}"])
@@ -49,12 +115,11 @@ def sections_to_markdown(tip: dict[str, Any]) -> str:
 
 
 def match_topic_by_query(query: str) -> str | None:
-    q = query.lower()
     index = load_index()
     best_id: str | None = None
     best_score = 0
     for topic in index.get("topics", []):
-        score = sum(1 for kw in topic.get("keywords", []) if kw in query or kw in q)
+        score = sum(1 for kw in topic.get("keywords", []) if kw in query)
         if score > best_score:
             best_score = score
             best_id = topic["id"]
@@ -62,8 +127,8 @@ def match_topic_by_query(query: str) -> str | None:
 
 
 def auto_recommend_topic(
-  profile: dict[str, Any] | None,
-  read_tip_ids: list[str] | None = None,
+    profile: dict[str, Any] | None,
+    read_tip_ids: list[str] | None = None,
 ) -> str | None:
     read = set(read_tip_ids or [])
     if profile:
@@ -76,10 +141,9 @@ def auto_recommend_topic(
     ).get("none", [])
 
     if profile and profile.get("channel_url") and "blog_index" not in read:
-        if "blog_index" in order:
-            pass
-        else:
-            order = list(order) + ["blog_index"]
+        order = list(order)
+        if "blog_index" not in order:
+            order.append("blog_index")
 
     for topic_id in order:
         if topic_id not in read:
@@ -115,6 +179,7 @@ def format_tip_response(
         "next_recommended_tip": next_recommended_tip(tip_id, read),
         "related_campaign_hint": tip.get("related_campaign_filter") or tip.get("related_tool"),
         "related_tool": tip.get("related_tool"),
+        "source": tip.get("source", "unknown"),
     }
 
 

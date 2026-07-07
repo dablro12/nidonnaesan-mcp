@@ -7,6 +7,9 @@ import os
 from typing import Any
 
 from dotenv import load_dotenv
+
+load_dotenv()
+
 from mcp.server.fastmcp import FastMCP
 
 from application_comment import generate_comment
@@ -20,8 +23,6 @@ from mcp_tool_result import install_tool_error_wrapping
 from naver_shopping import search_market_price
 from profile_store import filter_defaults, get_profile, set_profile
 from tips_loader import get_sponsorship_tip
-
-load_dotenv()
 
 MCP_HOST = os.getenv("MCP_HOST", "0.0.0.0")
 MCP_PORT = int(os.getenv("MCP_PORT", "8000"))
@@ -94,13 +95,15 @@ async def search_campaigns_by_need(
     stored = get_profile(profile_fallback=profile) or profile
     effective_filters = _resolve_filters(filters, stored)
     campaigns = await fetch_all_campaigns()
-    matched, keywords = search_by_need(
+    matched, keywords, mode = search_by_need(
         campaigns, need_text, top_n=top_n, filters=effective_filters
     )
     rows = [enrich_campaign(c) for c in matched]
     header = f"니즈 탐색: {need_text}"
     if keywords:
         header += f" (키워드: {', '.join(keywords)})"
+    if mode == "popular_fallback":
+        header += " — 키워드 매칭 없음, 인기순(신청자 수)으로 표시"
     return campaigns_to_markdown(rows, title=header)
 
 
@@ -196,7 +199,9 @@ async def generate_application_comment(
 )
 async def get_campaign_link(campaign_id: str) -> str:
     f"""Returns application page URL for a campaign from {SERVICE}."""
-    campaign = await fetch_campaign_by_id(campaign_id)
+    if not campaign_id or not str(campaign_id).strip():
+        raise ValueError("campaign_id가 필요합니다.")
+    campaign = await fetch_campaign_by_id(campaign_id.strip())
     if not campaign:
         raise ValueError(f"캠페인을 찾을 수 없습니다: {campaign_id}")
     url = campaign.get("originalUrl")
