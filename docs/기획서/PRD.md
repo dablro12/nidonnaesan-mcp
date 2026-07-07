@@ -2,126 +2,148 @@
 
 ## 1. 제품 개요
 
-`니돈내산`은 체험단/협찬 캠페인 데이터를 수집하고, 리뷰어 채널(블로그/인스타)에 맞는 캠페인을 추천하며, 실제 지원에 필요한 신청 문구와 운영 기록까지 자동화하는 MCP 서버입니다.
+`니돈내산(nidonnaesan)`은 체험단/협찬 캠페인 데이터를 수집하고, 리뷰어 채널(블로그/인스타)에 맞는 캠페인을 추천하며, 신청 문구 생성과 협찬 노하우 전수까지 제공하는 MCP 서버입니다.
 
 핵심 가치:
 - 흩어진 캠페인 탐색 시간을 줄인다.
-- 합격 가능성이 높은 캠페인을 우선 제시한다.
+- 체험가치·경쟁률·시장가로 "이 협찬 가치 있나?"를 판단한다.
 - 신청 한마디를 즉시 제출 가능한 수준으로 생성한다.
-- 링크 이동과 운영 DB 저장까지 한 번에 끝낸다.
+- 초보자에게 적성 테스트와 검증된 팁을 전수한다.
 
 ## 2. 문제 정의
-
-주요 사용자(블로그/인스타 리뷰어, 초기 시작자)는 아래 문제를 반복합니다.
 
 1. 여러 체험단 플랫폼을 매일 직접 순회해야 한다.
 2. 어떤 캠페인이 내 채널과 맞는지 판단이 어렵다.
 3. 신청 한마디를 매번 새로 작성해야 한다.
-4. 지원 현황/마감일/선정 결과를 추적하기 어렵다.
+4. 선정률을 올리는 방법을 체계적으로 배우기 어렵다.
 
 ## 3. 타겟 사용자
 
-1. 블로거 리뷰어 인플루언서
-2. 인스타 리뷰어 인플루언서
+1. 블로거 리뷰어
+2. 인스타 리뷰어
 3. 초기 시작자(입문 리뷰어)
 
 ## 4. 핵심 메시지
 
 **니돈내산 - 협찬 받고, 신청까지 한 번에**
 
-보조 메시지:
-- 찾고, 고르고, 붙는 신청까지.
-- 내 채널에 맞는 협찬을 한 번에 추천.
-
 ## 5. MVP 범위
+
+상세: [MVP_SCOPE.md](./MVP_SCOPE.md)
 
 ### 5.1 필수 기능
 
-1. 캠페인 수집/필터링
-   - 소스: 체험단 API (`campaigns`)
-   - 필터: `mediaType`, `type`, `platform`, `category`, `sort`
-2. 오늘의 인기 협찬 5개
-   - 인기/마감/적합도 기준 정렬
-3. 채널 맞춤 추천
-   - 블로그 URL/인스타 성향 기반 추천
-4. 신청 한마디 자동 생성
-   - 캠페인별 3문장 자연형
-   - 톤 옵션(자연형/공손형/어필형)
-5. 신청 링크 제공
-   - `originalUrl` 기반 즉시 이동
-6. Notion DB 저장
-   - 추천 후보, 점수, 신청 문구, 상태 저장
+1. 오늘의 인기 협찬 5개 (테이블)
+2. 니즈 기반 캠페인 탐색 (자연어 → 3~5개 비교)
+3. 체험가치 판단 (매체별 기준단가 대비)
+4. 네이버 쇼핑 시장가 비교
+5. 채널 분석 + 신청 한마디 3문장 생성
+6. 협찬 적성 테스트 (5~7문항, 1회성)
+7. 협찬 팁 전수 (5토픽 + 프로필 맞춤)
+8. 프로필 저장/조회 (`set_reviewer_profile` / `get_reviewer_profile`)
 
-### 5.2 확장 기능 (v1.1+)
+### 5.2 제외 (MVP)
 
-1. 상품 시세 비교 (네이버 쇼핑 검색 API 기반)
-2. 마감 임박 알림 (D-1, D-0)
-3. 캠페인 상태 자동 리캡 (지원완료/선정/탈락)
+- Notion 저장
+- 대회 발표용 DEMO_SCRIPT/KPI 문서
+- 세션 기반 메모리 (`start_session`)
 
-## 6. MCP 도구 설계 초안
+## 6. MCP 도구 (10개)
 
-1. `get_today_hot_campaigns(top_n, filters)`
-2. `match_campaigns_to_profile(profile, top_n)`
-3. `score_campaign_fit(campaign_id, profile)`
-4. `generate_application_comment(campaign_id, blog_url, tone)`
-5. `open_campaign_link(campaign_id)`
-6. `save_to_notion(database_id, records)`
+| # | 툴 | 역할 |
+|---|-----|------|
+| 1 | `get_today_hot_campaigns` | 인기 협찬 |
+| 2 | `search_campaigns_by_need` | 니즈 탐색 |
+| 3 | `compare_product_market_price` | 시장가 비교 |
+| 4 | `analyze_channel_profile` | 채널 분석 |
+| 5 | `generate_application_comment` | 신청 한마디 |
+| 6 | `get_campaign_link` | 신청 링크 |
+| 7 | `run_sponsorship_aptitude_test` | 적성 테스트 |
+| 8 | `get_sponsorship_tips` | 팁 전수 |
+| 9 | `set_reviewer_profile` | 프로필 저장 |
+| 10 | `get_reviewer_profile` | 프로필 조회 |
 
-## 7. 추천/합격 점수 로직 (초안)
+상세 스펙: [TOOL_SPEC.md](./TOOL_SPEC.md)
 
-총점 100점:
-- 채널 적합도: 35
-- 경쟁률(신청/모집): 25
-- 마감 여유(dDay): 20
-- 카테고리 선호도: 10
-- 최근 작성 활동도: 10
+## 7. 협찬 적성 테스트 온보딩 플로우
 
-출력:
-- 점수(0~100)
-- 등급(높음/보통/낮음)
-- 근거 3줄
+```mermaid
+flowchart TD
+  start["협찬 처음이야 / 적성 테스트"]
+  test["run_sponsorship_aptitude_test"]
+  result["유형 + filter_preset + profile_payload"]
+  save["set_reviewer_profile"]
+  tips["get_sponsorship_tips topic=auto"]
+  search["search_campaigns_by_need top_n=3"]
+  table["맞춤 캠페인 테이블"]
 
-## 8. 카카오톡 사용자 시나리오
+  start --> test
+  test --> result
+  result --> save
+  save --> tips
+  tips --> search
+  search --> table
+```
 
-1. 사용자: "오늘의 인기 협찬 5개 보여줘"
-2. MCP: 추천 5개 + 합격 점수 + 신청 링크 제공
-3. 사용자: "상위 3개 신청 한마디 써줘"
-4. MCP: 캠페인별 3문장 신청 문구 생성
-5. 사용자: "노션 DB에 저장해줘"
-6. MCP: 후보/문구/점수/링크 저장 완료
+- 적성 유형 5종: 맛집 탐험가, 뷰티 크리에이터, 생활 기록자, 여행러, 올라운더
+- 상세: [APTITUDE_TEST.md](./APTITUDE_TEST.md)
 
-## 9. 성공 지표 (MVP)
+## 8. 메모리 전략 (카카오 MCP 대회 기준)
 
-1. 추천 조회 후 링크 클릭률
-2. 신청 문구 생성 후 실제 복사/사용률
-3. 추천 후보의 지원 전환율
-4. 사용자당 주간 재방문율
+- **Stateless 서버**: HTTP 세션 없음 (`start_session` 금지)
+- **프로필 영속 저장**: 지원금봇 `set_profile` 패턴 채택
+- **저장 키**: OAuth `sub` (Phase 2) / `profile` 파라미터 fallback (Phase 1)
+- **저장소**: SQLite (MVP) → Redis (배포)
 
-## 10. 기술 및 연동
+상세: [PROFILE_MEMORY.md](./PROFILE_MEMORY.md)
 
-기본 연동:
-- 체험단 목록 API (캠페인 데이터)
-- Notion API (운영 DB)
+## 9. 팁 전수 체계
 
-추가 연동:
-- 네이버 쇼핑 검색 API (가격 비교/시세 인사이트)
+운영자 100건+ 직접 신청 경험 기반 5토픽:
 
-## 11. 리스크 및 대응
+| topic | 내용 |
+|-------|------|
+| `selection_rate` | 선정률 높이는 방법 7가지 |
+| `blog_index` | 블로그 지수·C-Rank |
+| `platform` | 플랫폼 9개 비교 |
+| `ad_disclosure` | 광고 표기법 |
+| `posting_omission` | 포스팅 누락 예방 |
 
-1. 데이터 소스 변경
-   - 대응: 필드 매핑 레이어 분리
-2. 생성 문구 템플릿화 문제
-   - 대응: 사용자 채널 프로필 기반 개인화 강화
-3. API 사용량 제한
-   - 대응: 캐시/배치 조회/요청 제한
+데이터: [data/tips/](../../data/tips/)
 
-## 12. 출시 계획 (초안)
+## 10. 체험가치·경쟁률
 
-1주차:
-- API 수집/필터링, 추천 로직, 링크 제공
+- 체험가치: 매체별 기준단가 대비 (블로그 3만, 릴스 5만) → 높음/보통/낮음
+- 경쟁률: `applicants/recruitCount` (X.X:1) + 여유/보통/치열 라벨
+- 100점 합격점수는 사용하지 않음
 
-2주차:
-- 신청 한마디 생성 고도화, Notion 저장
+## 11. 카카오톡 사용자 시나리오
 
-3주차:
-- 점수 근거 설명 개선, 카톡형 프롬프트 정리, 데모 시나리오 완성
+1. "협찬 처음인데 뭐부터?" → 적성 테스트 → 맞춤 팁 → 추천 캠페인 3개
+2. "오늘 인기 협찬 5개" → 테이블 + 체험가치 + 신청 링크
+3. "아이 튜브 협찬 찾아줘" → 니즈 탐색 테이블
+4. "선정률 올리는 법" → 팁 전수 → 신청 한마디 생성
+5. "이 캠페인 신청 문구 써줘" → 채널 분석 + 3문장
+
+## 12. 기술 및 연동
+
+- 체험단 API: `https://api-on7fpupona-du.a.run.app/campaigns`
+- 네이버 쇼핑 Search API
+- 네이버 블로그 (채널 분석)
+- Skills: `reviewer-application-comment-ko`
+
+## 13. 리스크 및 대응
+
+| 리스크 | 대응 |
+|--------|------|
+| API 변경 | 필드 매핑 레이어 분리 |
+| 팁 정적 데이터 노후화 | `data/tips/` 버전 관리 |
+| OAuth 미연동 시 프로필 소실 | `profile` 파라미터 fallback |
+
+## 14. 출시 단계
+
+| 단계 | 범위 |
+|------|------|
+| 1차 (현재) | 기획 문서 + Tool 스펙 + tips 데이터 |
+| 2차 | MCP 서버 구현, 캠페인 API 연동 |
+| 3차 | OAuth + SQLite 프로필, PlayMCP 심사 |

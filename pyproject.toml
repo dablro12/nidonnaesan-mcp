@@ -1,14 +1,16 @@
 [project]
-name = "yes-parrot-mcp"
-version = "0.1.0"
-description = "넵무새 - 성공적인 사회초년생활 카톡 코치 MCP"
+name = "nidonnaesan-mcp"
+version = "0.2.0"
+description = "니돈내산 - 협찬 받고, 신청까지 한 번에 MCP"
 requires-python = ">=3.10"
 dependencies = [
     "mcp[cli]>=1.2.0",
+    "httpx>=0.27.0",
+    "python-dotenv>=1.0.0",
 ]
 
 [project.scripts]
-yes-parrot = "nepmoosae_server:main"
+nidonnaesan = "nidonnaesan_server:main"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

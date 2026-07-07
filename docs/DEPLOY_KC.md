@@ -1,0 +1,80 @@
+# PlayMCP in KC 배포 가이드 (니돈내산)
+
+## 1. GitHub Actions 확인
+
+https://github.com/dablro12/nidonnaesan-mcp/actions
+
+- **CI** → 테스트 통과
+- **Publish Docker image** → ✅ success 여야 함
+
+---
+
+## 2. GHCR 패키지 공개
+
+GHCR 이미지가 **private**이면 KC가 pull 못 해서 **Starting에서 실패**합니다.
+
+1. https://github.com/dablro12?tab=packages
+2. **nidonnaesan-mcp** 클릭
+3. **Package settings** → **Change visibility** → **Public**
+
+Private 유지 시 KC에 `read:packages` PAT 입력.
+
+---
+
+## 3. KC 이미지 등록
+
+https://playmcp.kakaocloud.io → **+ 새 MCP 서버 등록** → **이미지 등록**
+
+| 항목 | 값 |
+|------|-----|
+| MCP 서버 이름 | `nidonnaesan` |
+| 설명 | `니돈내산 MCP` |
+| Registry 호스트 | `ghcr.io` |
+| image_name | `dablro12/nidonnaesan-mcp` |
+| image_tag | `latest` 또는 `main` |
+
+> image_name에 `ghcr.io/` 포함하지 마세요.
+
+---
+
+## 4. GitHub Secrets (선택)
+
+| Secret | 용도 |
+|--------|------|
+| `NAVER_CLIENT_ID` | 네이버 쇼핑 시장가 비교 |
+| `NAVER_CLIENT_SECRET` | 네이버 쇼핑 시장가 비교 |
+
+미설정 시 시장가 비교 툴은 안내 메시지 반환, 나머지 툴 정상 동작.
+
+---
+
+## 5. 성공 확인
+
+Status **Active** 후:
+
+```bash
+curl -sS "https://YOUR-ENDPOINT.playmcp-endpoint.kakaocloud.io/mcp" \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-03-26","capabilities":{},"clientInfo":{"name":"test","version":"1.0"}}}'
+```
+
+---
+
+## 6. 로컬 실행
+
+```bash
+pip install -r server/requirements.txt
+python nidonnaesan_server.py
+```
+
+MCP Inspector: `http://localhost:8000/mcp`
+
+---
+
+## 7. 자주 하는 실수
+
+| 실수 | 결과 |
+|------|------|
+| Private GHCR + PAT 없음 | Starting → Error |
+| arm64 로컬 빌드 | KC는 linux/amd64만 (Actions 사용) |
+| 툴명에 kakao 포함 | 심사 반려 |

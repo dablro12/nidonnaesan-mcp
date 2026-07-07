@@ -1,0 +1,50 @@
+{
+  "version": "1.0.0",
+  "topics": [
+    {
+      "id": "selection_rate",
+      "file": "selection-rate-7.json",
+      "title": "체험단 선정률 높이는 방법 7가지",
+      "keywords": ["선정률", "신청 메시지", "선정", "탈락", "신청합니다"],
+      "recommended_for": ["beginner", "apply"],
+      "priority": 1
+    },
+    {
+      "id": "blog_index",
+      "file": "blog-index.json",
+      "title": "블로그 지수란? 체험단 선정에 미치는 영향",
+      "keywords": ["블로그 지수", "C-Rank", "DIA", "저품질", "노출"],
+      "recommended_for": ["blog_health", "apply"],
+      "priority": 2
+    },
+    {
+      "id": "platform",
+      "file": "platform-guide.json",
+      "title": "체험단 플랫폼 특징 총정리 (2026년 기준)",
+      "keywords": ["레뷰", "티블", "체험뷰", "리뷰진", "플랫폼", "처음", "초보"],
+      "recommended_for": ["beginner", "platform"],
+      "priority": 3
+    },
+    {
+      "id": "ad_disclosure",
+      "file": "ad-disclosure.json",
+      "title": "체험단 후기 광고 표기법",
+      "keywords": ["광고 표기", "공정위", "협찬", "표시광고법", "원고료"],
+      "recommended_for": ["review"],
+      "priority": 4
+    },
+    {
+      "id": "posting_omission",
+      "file": "posting-omission.json",
+      "title": "포스팅 누락이란? 체험단 불이익 예방하는 법",
+      "keywords": ["누락", "저품질", "검색", "미제출", "패널티"],
+      "recommended_for": ["review", "blog_health"],
+      "priority": 5
+    }
+  ],
+  "auto_recommendation_order": {
+    "none": ["selection_rate", "platform", "blog_index", "ad_disclosure", "posting_omission"],
+    "beginner": ["selection_rate", "platform", "blog_index"],
+    "intermediate": ["blog_index", "ad_disclosure", "posting_omission"]
+  }
+}

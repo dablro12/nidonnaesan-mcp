@@ -1,0 +1,45 @@
+{
+  "id": "platform",
+  "title": "체험단 플랫폼 특징 총정리 (2026년 기준)",
+  "summary": "처음이라면 레뷰보다 티블, 체험뷰, 리뷰진처럼 경쟁률이 낮은 곳에서 선정 경험을 먼저 쌓는 게 좋습니다.",
+  "operator_note": "포트폴리오(완료된 리뷰 이력)가 쌓이면 레뷰에서도 선정 확률이 올라갑니다.",
+  "keywords": ["레뷰", "티블", "체험뷰", "리뷰진", "플랫폼", "초보"],
+  "recommended_for": ["beginner", "platform"],
+  "priority": 3,
+  "action_checklist": [
+    "초보라면 체험뷰·리뷰진·티블부터 가입했는가?",
+    "내 카테고리(맛집/뷰티/배송형)에 맞는 플랫폼을 선택했는가?",
+    "레뷰는 포트폴리오 쌓은 후 도전하는가?"
+  ],
+  "comparison_table": [
+    {"platform": "레뷰", "specialty": "전 분야", "competition": "높음", "media": "블로그·인스타·유튜브", "note": "국내 최대, 등급제"},
+    {"platform": "티블", "specialty": "전 분야", "competition": "중간", "media": "블로그", "note": "신청 UI 직관적, 중소 브랜드"},
+    {"platform": "리뷰플레이스", "specialty": "방문형", "competition": "중간", "media": "블로그", "note": "수도권 맛집·카페"},
+    {"platform": "서울오빠", "specialty": "수도권 외식", "competition": "중간", "media": "블로그·인스타", "note": "서울/경기 특화"},
+    {"platform": "디너의여왕", "specialty": "외식", "competition": "중간", "media": "인스타", "note": "레스토랑·호텔 다이닝"},
+    {"platform": "리뷰노트", "specialty": "배송형", "competition": "중간", "media": "블로그", "note": "뷰티·생활용품"},
+    {"platform": "체험뷰", "specialty": "전 분야", "competition": "낮음", "media": "블로그", "note": "초보에 적합"},
+    {"platform": "링블", "specialty": "배송형", "competition": "낮음", "media": "블로그", "note": "소규모 브랜드"},
+    {"platform": "리뷰진", "specialty": "전 분야", "competition": "낮음", "media": "블로그", "note": "초반 경험 쌓기 좋음"}
+  ],
+  "sections": [
+    {
+      "heading": "어디서 시작해야 할까?",
+      "body": "처음 체험단을 시작하는 분이라면 레뷰보다 티블, 체험뷰, 리뷰진처럼 경쟁률이 낮은 곳에서 선정 경험을 먼저 쌓는 게 좋습니다."
+    },
+    {
+      "heading": "레뷰 (revu.net)",
+      "body": "국내 최대 규모. 블로그, 인스타, 유튜브 모두 모집. 경쟁률 높음. 리뷰어 등급제 운영 — 등급에 따라 신청 가능 캠페인이 달라짐."
+    },
+    {
+      "heading": "티블 (tble.kr)",
+      "body": "블로그 특화, 신청 UI 직관적. 중소 브랜드 많아 경쟁률이 레뷰보다 낮음. 처음 시작하는 블로거에게 레뷰 다음으로 추천."
+    },
+    {
+      "heading": "체험뷰 / 리뷰진 / 링블",
+      "body": "경쟁률 낮아 초보가 포트폴리오를 쌓기 좋음. 중소 브랜드 캠페인 비중 높음."
+    }
+  ],
+  "beginner_path": ["체험뷰", "리뷰진", "티블", "레뷰"],
+  "related_campaign_filter": {"platform": "체험뷰,리뷰진,티블"}
+}
