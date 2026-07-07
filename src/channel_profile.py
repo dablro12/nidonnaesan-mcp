@@ -66,6 +66,35 @@ def infer_blogger_type(categories: list[str]) -> str:
     return "생활 블로거"
 
 
+def channel_from_campaign(campaign: dict[str, Any]) -> dict[str, Any]:
+    """블로그 URL 없이 캠페인 메타만으로 신청 문구용 채널 프로필 생성."""
+    category = campaign.get("category") or "생활"
+    title = campaign.get("title") or ""
+    main_categories = [category]
+    blogger_type = "생활 블로거"
+
+    if category == "숙박":
+        main_categories = ["여행"]
+        blogger_type = "여행 블로거"
+    elif category == "뷰티":
+        blogger_type = "뷰티 블로거"
+    elif any(k in title for k in ("디지털", "가전", "IT", "스마트", "전자", "테크")):
+        main_categories = ["IT", "생활"]
+        blogger_type = "IT 블로거"
+
+    product = re.sub(r"^\[[^\]]+\]\s*", "", title).strip() or "이 제품"
+
+    return {
+        "anonymous": True,
+        "blog_name": "리뷰어",
+        "main_categories": main_categories,
+        "blogger_type": blogger_type,
+        "review_style": "솔직한 경험 위주, 직접 촬영",
+        "campaign_product": product,
+        "recommended_media": campaign.get("mediaType") or "블로그",
+    }
+
+
 async def analyze_channel(channel_url: str) -> dict[str, Any]:
     blog_id = extract_blog_id(channel_url)
     if not blog_id:

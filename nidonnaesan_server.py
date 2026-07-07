@@ -26,7 +26,7 @@ from campaign_formatter import compare_to_markdown, dict_to_markdown
 from campaign_output import build_campaign_table
 from campaign_recommender import recommend_campaigns
 from campaign_resolver import resolve_campaign
-from channel_profile import analyze_channel
+from channel_profile import analyze_channel, channel_from_campaign
 from experience_value import enrich_campaign, experience_value_label, parse_benefit_value
 from mcp_tool_result import install_tool_error_wrapping
 from naver_shopping import search_market_price
@@ -308,13 +308,16 @@ async def generate_application_comment(
         )
 
     stored = get_profile(profile_fallback=profile) or profile or {}
-    url = channel_url or stored.get("channel_url")
-    if not url:
-        raise ValueError("channel_url이 필요합니다. 블로그 URL을 입력하거나 프로필에 저장하세요.")
+    url = (channel_url or stored.get("channel_url") or "").strip()
+    channel_source = "channel"
 
-    channel = await analyze_channel(url)
-    if channel.get("error"):
-        raise ValueError(channel["error"])
+    if url:
+        channel = await analyze_channel(url)
+        if channel.get("error"):
+            raise ValueError(channel["error"])
+    else:
+        channel = channel_from_campaign(campaign)
+        channel_source = "campaign"
 
     title = campaign.get("title") or product_name or ""
     research = await research_product_context(clean_search_keyword(title))
@@ -324,18 +327,28 @@ async def generate_application_comment(
     lines = [
         "## 신청 한마디",
         "",
-        result["comment"],
-        "",
-        f"_{result['channel_evidence']}_",
-        f"_{result['tips_reference']}_",
-        "",
-        result.get("verification_footer", ""),
-        f"_매칭: {match_mode} · campaign_id: {campaign.get('id')}_",
     ]
+    if channel_source == "campaign":
+        lines.append("_블로그 URL 없음 — 캠페인·제품 정보 기반 초안입니다. 본인 채널에 맞게 수정하세요._")
+        lines.append("")
+    lines.extend(
+        [
+            result["comment"],
+            "",
+            f"_{result['channel_evidence']}_",
+            f"_{result['tips_reference']}_",
+            "",
+            result.get("verification_footer", ""),
+            f"_매칭: {match_mode} · campaign_id: {campaign.get('id')}_",
+        ]
+    )
     return "\n".join(lines)
 
 
-generate_application_comment.__doc__ = f"3-sentence application draft from {SERVICE}."
+generate_application_comment.__doc__ = tool_description(
+    f"3-sentence application draft from {SERVICE}.",
+    "generate_application_comment",
+)
 
 
 @mcp.tool(annotations={**READ_ONLY, "title": "Get Campaign Link"})

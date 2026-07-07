@@ -66,10 +66,15 @@ async def app_comment_v2(**kw):
     )
     if not campaign:
         raise ValueError("not found")
-    url = kw.get("channel_url") or SAMPLE_BLOG
-    ch = await analyze_channel(url)
-    if ch.get("error"):
-        raise ValueError(ch["error"])
+    url = kw.get("channel_url")
+    if url:
+        ch = await analyze_channel(url)
+        if ch.get("error"):
+            raise ValueError(ch["error"])
+    else:
+        from channel_profile import channel_from_campaign
+
+        ch = channel_from_campaign(campaign)
     research = await research_product_context(campaign.get("title") or "")
     return generate_comment(
         campaign, ch, tone=kw.get("tone", "natural"), product_context=research.get("context")
@@ -294,6 +299,8 @@ async def build_cases() -> dict[str, list[Case]]:
             Case("complex", "bad channel", app_comment_v2, {"campaign_id": seoul_food, "channel_url": "https://blog.naver.com/__none__"}, expect_error=True),
             Case("medium", "appeal food", app_comment_v2, {"campaign_id": seoul_food, "tone": "appeal"}),
             Case("complex", "no identifier", app_comment_v2, {}, expect_error=True),
+            Case("medium", "제품명만", app_comment_v2, {"product_name": "텀블러 살균 건조기"}),
+            Case("medium", "숫자 id만", app_comment_v2, {"campaign_id": "233089"}),
         ],
         "get_campaign_link": [
             Case("simple", "서울 맛집 ID", link, {"campaign_id": seoul_food}),

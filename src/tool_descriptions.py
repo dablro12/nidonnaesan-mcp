@@ -57,6 +57,17 @@ NEVER as only tool when user says 협찬 처음 — chain:
 USE FIRST when: 협찬 처음 / 뭐부터 해 / 입문 / 시작.
 Then chain set_reviewer_profile + get_campaign_recommendations(mode=easy_pick).
 """.strip(),
+    "generate_application_comment": """
+USE for: 신청 한마디 / 신청 문구 / 신청 메시지 써줘.
+
+PARAMETERS (one of):
+- `campaign_id` — 표의 id (`revu-1367756`, `cloudreview-233089`, 또는 숫자 `233089`)
+- `product_name` — 제품명 (예: "텀블러 살균 건조기")
+- `campaign_url` — 신청 링크 URL
+
+`channel_url` is OPTIONAL. 없으면 캠페인·제품 정보로 초안 생성.
+블로그 URL이 있으면 채널 맞춤 문구로 품질이 올라갑니다.
+""".strip(),
 }
 
 

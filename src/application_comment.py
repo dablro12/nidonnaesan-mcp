@@ -83,7 +83,10 @@ def generate_comment(
     main_cat = (channel.get("main_categories") or ["생활"])[0]
     blogger_type = _infer_blogger_type(campaign, channel)
 
-    s1 = f"{blog_name}에서 {main_cat} 경험을 직접 기록하는 {blogger_type}입니다."
+    if channel.get("anonymous"):
+        s1 = f"{main_cat}·실사용 후기를 중심으로 리뷰하는 {blogger_type}입니다."
+    else:
+        s1 = f"{blog_name}에서 {main_cat} 경험을 직접 기록하는 {blogger_type}입니다."
 
     motive = _pick_motive(category, title, product_context)
     s2 = f"{motive} 신청합니다."
@@ -97,7 +100,10 @@ def generate_comment(
         s3 = "정성껏 방문·체험 후 사진과 함께 솔직하고 꼼꼼한 후기를 남기겠습니다."
 
     comment = f"{s1} {s2} {s3}"
-    evidence_parts = [f"채널 주제({main_cat})", f"캠페인 카테고리({category})"]
+    if channel.get("anonymous"):
+        evidence_parts = [f"캠페인 카테고리({category})", f"제품({title})"]
+    else:
+        evidence_parts = [f"채널 주제({main_cat})", f"캠페인 카테고리({category})"]
     if product_context:
         evidence_parts.append(f"제품 맥락({product_context[:60]})")
     evidence = " · ".join(evidence_parts)
