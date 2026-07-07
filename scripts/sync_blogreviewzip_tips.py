@@ -22,15 +22,19 @@ LEGACY_ID_MAP = {
     "platform": "platform-comparison",
     "ad_disclosure": "advertising-disclosure",
     "posting_omission": "posting-missing",
+    "naver_seo": "naver-seo-guide",
 }
 
 CATEGORY_KEYWORDS: dict[str, list[str]] = {
     "선정률": ["선정", "신청", "탈락", "초보", "당첨", "포트폴리오", "실수"],
-    "리뷰작성": ["리뷰", "포스팅", "사진", "제목", "AI", "광고 글", "작성"],
+    "리뷰작성": ["리뷰", "포스팅", "사진", "제목", "AI", "광고 글", "작성", "SEO", "네이버"],
     "플랫폼": ["플랫폼", "레뷰", "티블", "사이트", "등급", "네이버 플레이스"],
     "도구관리": ["관리", "마감", "반려", "애드포스트", "쿠팡", "수익", "알바", "댓글"],
     "규정": ["광고 표기", "공정위", "페이백", "표기", "누락"],
 }
+
+NAVER_SEO_SLUG = "naver-seo-guide"
+NAVER_SEO_URL = "https://blogreviewzip.com/naver-seo"
 
 
 def discover_slugs(client: httpx.Client) -> list[str]:
@@ -141,9 +145,23 @@ def build_index(articles: list[dict[str, str]]) -> dict:
         "auto_recommendation_order": {
             "none": ["selection_rate", "platform", "blog_index", "ad_disclosure", "posting_omission"],
             "beginner": ["selection_rate", "platform", "blog_index", "first_campaign_checklist", "campaign_sites_and_tips"],
-            "intermediate": ["blog_index", "ad_disclosure", "posting_omission", "review_writing_guide", "photo_tips_by_category"],
+            "intermediate": ["blog_index", "ad_disclosure", "posting_omission", "review_writing_guide", "photo_tips_by_category", "naver_seo"],
         },
     }
+
+
+def fetch_naver_seo_page(client: httpx.Client) -> dict[str, str]:
+    """blogreviewzip.com/naver-seo 단일 페이지 동기화."""
+    page = client.get(NAVER_SEO_URL).text
+    title_m = re.search(r"<title>([^<|]+)", page)
+    title = html.unescape(title_m.group(1).strip()) if title_m else "네이버 블로그 SEO 가이드"
+    body_html = extract_article_html(page)
+    body = _html_to_text(body_html)
+    if len(body) < 200:
+        desc_m = re.search(r'<meta name="description" content="([^"]+)"', page)
+        body = html.unescape(desc_m.group(1)) if desc_m else body
+    md = f"# {title}\n\n{body}\n"
+    return {"slug": NAVER_SEO_SLUG, "title": title, "markdown": md, "source_url": NAVER_SEO_URL}
 
 
 def main() -> int:
@@ -161,6 +179,15 @@ def main() -> int:
                 print(f"saved {slug} ({len(art['markdown'])} chars)")
             except Exception as exc:
                 print(f"WARN {slug}: {exc}", file=sys.stderr)
+
+        try:
+            seo = fetch_naver_seo_page(client)
+            if seo["slug"] not in {a["slug"] for a in articles}:
+                articles.append(seo)
+                (TIPS_DIR / f"{seo['slug']}.md").write_text(seo["markdown"], encoding="utf-8")
+                print(f"saved {seo['slug']} ({len(seo['markdown'])} chars) [naver-seo]")
+        except Exception as exc:
+            print(f"WARN naver-seo: {exc}", file=sys.stderr)
 
     index = build_index(articles)
     (TIPS_DIR / "index.json").write_text(

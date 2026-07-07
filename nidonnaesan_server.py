@@ -4,7 +4,13 @@ from __future__ import annotations
 
 import json
 import os
+import sys
+from pathlib import Path
 from typing import Any
+
+_APP_DIR = Path(__file__).resolve().parent / "src"
+if str(_APP_DIR) not in sys.path:
+    sys.path.insert(0, str(_APP_DIR))
 
 from dotenv import load_dotenv
 
@@ -16,11 +22,14 @@ from application_comment import generate_comment
 from aptitude_test import run_aptitude_test
 from campaign_client import fetch_all_campaigns, fetch_campaign_by_id
 from campaign_filters import apply_filters, hot_campaigns, search_by_need, urgent_campaigns
-from campaign_formatter import campaigns_to_markdown, dict_to_markdown
+from campaign_formatter import campaigns_to_compact_markdown, campaigns_to_markdown, dict_to_markdown
+from campaign_recommender import recommend_campaigns
+from campaign_resolver import resolve_campaign
 from channel_profile import analyze_channel
 from experience_value import enrich_campaign, parse_benefit_value
 from mcp_tool_result import install_tool_error_wrapping
 from naver_shopping import search_market_price
+from product_research import research_product_context
 from profile_store import filter_defaults, get_profile, set_profile
 from tips_loader import get_sponsorship_tip
 
@@ -63,6 +72,66 @@ def _parse_json_arg(val: str | dict[str, Any] | None) -> dict[str, Any] | None:
     if isinstance(val, str) and val.strip():
         return json.loads(val)
     return None
+
+
+def _format_recommendation_header(meta: dict[str, Any], need_text: str | None = None) -> str:
+    mode = meta.get("mode", "by_need")
+    if mode == "easy_pick":
+        return "초보 추천 — 경쟁 여유·체험가치 중심"
+    if mode == "urgent":
+        region = meta.get("region")
+        dday = meta.get("max_dday", 1)
+        title = f"마감 임박 협찬 (D-{dday} 이내)"
+        return f"{title} — {region}" if region else title
+    if need_text:
+        header = f"니즈 맞춤: {need_text}"
+        intent = meta.get("intent") or {}
+        if intent.get("regions"):
+            header += f" (지역: {', '.join(intent['regions'][:3])})"
+        if intent.get("categories"):
+            header += f" (업종: {', '.join(intent['categories'])})"
+        if meta.get("sort_by") == "low_competition":
+            header += " — 경쟁률 낮은 순"
+        return header
+    return "맞춤 협찬 추천"
+
+
+@mcp.tool(
+    annotations={**READ_ONLY, "title": "Campaign Recommendations"},
+)
+async def get_campaign_recommendations(
+    mode: str = "by_need",
+    need_text: str | None = None,
+    top_n: int = 5,
+    sort_by: str = "popular",
+    table_format: str = "compact",
+    filters: dict[str, Any] | None = None,
+    profile: dict[str, Any] | None = None,
+    max_dday: int = 1,
+    region: str | None = None,
+) -> str:
+    f"""Unified sponsorship recommendations from {SERVICE}: easy_pick / by_need / urgent."""
+    stored = get_profile(profile_fallback=profile) or profile
+    effective_filters = _resolve_filters(filters, stored)
+    if region:
+        effective_filters = {**effective_filters, "region": region}
+
+    campaigns = await fetch_all_campaigns()
+    picked, meta = recommend_campaigns(
+        campaigns,
+        mode=mode,
+        need_text=need_text,
+        top_n=top_n,
+        filters=effective_filters,
+        sort_by=sort_by,
+        max_dday=max_dday,
+        region=region or effective_filters.get("region"),
+    )
+    rows = [enrich_campaign(c) for c in picked]
+    title = _format_recommendation_header(meta, need_text)
+    if table_format == "compact":
+        return campaigns_to_compact_markdown(rows, title=title)
+    return campaigns_to_markdown(rows, title=title)
 
 
 @mcp.tool(
@@ -203,15 +272,23 @@ async def analyze_channel_profile(channel_url: str) -> str:
     annotations={**READ_ONLY, "title": "Generate Application Comment"},
 )
 async def generate_application_comment(
-    campaign_id: str,
+    campaign_id: str | None = None,
+    product_name: str | None = None,
+    campaign_url: str | None = None,
     channel_url: str | None = None,
     tone: str = "natural",
     profile: dict[str, Any] | None = None,
 ) -> str:
     f"""Generates a 3-sentence Korean application comment from {SERVICE}."""
-    campaign = await fetch_campaign_by_id(campaign_id)
+    campaign, match_mode = await resolve_campaign(
+        campaign_id=campaign_id,
+        product_name=product_name,
+        campaign_url=campaign_url,
+    )
     if not campaign:
-        raise ValueError(f"캠페인을 찾을 수 없습니다: {campaign_id}")
+        raise ValueError(
+            "캠페인을 찾을 수 없습니다. campaign_id, product_name, campaign_url 중 하나를 입력하세요."
+        )
 
     stored = get_profile(profile_fallback=profile) or profile or {}
     url = channel_url or stored.get("channel_url")
@@ -222,7 +299,13 @@ async def generate_application_comment(
     if channel.get("error"):
         raise ValueError(channel["error"])
 
-    result = generate_comment(campaign, channel, tone=tone)
+    product_ctx = None
+    title = campaign.get("title") or product_name or ""
+    research = await research_product_context(title)
+    if research.get("context"):
+        product_ctx = research["context"]
+
+    result = generate_comment(campaign, channel, tone=tone, product_context=product_ctx)
     lines = [
         "## 신청 한마디",
         "",
@@ -230,6 +313,9 @@ async def generate_application_comment(
         "",
         f"_{result['channel_evidence']}_",
         f"_{result['tips_reference']}_",
+        "",
+        result.get("verification_footer", ""),
+        f"_매칭: {match_mode}_",
     ]
     return "\n".join(lines)
 

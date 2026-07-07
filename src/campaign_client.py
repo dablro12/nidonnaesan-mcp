@@ -10,15 +10,14 @@ from typing import Any
 
 import httpx
 
+from runtime_paths import data_path
+
 CAMPAIGN_API_BASE = os.getenv(
     "CAMPAIGN_API_BASE",
     "https://api-on7fpupona-du.a.run.app",
 )
 CAMPAIGN_DATA_FILE = Path(
-    os.getenv(
-        "CAMPAIGN_DATA_FILE",
-        str(Path(__file__).resolve().parent / "data" / "campaigns" / "campaigns.json"),
-    )
+    os.getenv("CAMPAIGN_DATA_FILE", str(data_path("campaigns", "campaigns.json")))
 )
 _CACHE_TTL_SEC = int(os.getenv("CAMPAIGN_CACHE_TTL_SEC", "300"))
 _PAGE_SIZE = 500

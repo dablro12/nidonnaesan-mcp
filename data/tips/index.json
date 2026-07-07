@@ -111,6 +111,27 @@
       ]
     },
     {
+      "id": "naver_seo",
+      "slug": "naver-seo-guide",
+      "file": "naver-seo-guide.md",
+      "title": "네이버 블로그 상위노출 전략 2026년 최신판",
+      "keywords": [
+        "네이버",
+        "블로그",
+        "상위노출",
+        "전략",
+        "2026년",
+        "최신판",
+        "naver seo guide"
+      ],
+      "category": "리뷰작성",
+      "priority": 6,
+      "source_url": "https://blogreviewzip.com/naver-seo",
+      "recommended_for": [
+        "beginner"
+      ]
+    },
+    {
       "id": "ai_briefing_review_guide",
       "slug": "ai-briefing-review-guide",
       "file": "ai-briefing-review-guide.md",
@@ -631,7 +652,8 @@
       "ad_disclosure",
       "posting_omission",
       "review_writing_guide",
-      "photo_tips_by_category"
+      "photo_tips_by_category",
+      "naver_seo"
     ]
   }
 }

@@ -12,7 +12,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT))
+sys.path.insert(0, str(ROOT / "src"))
 load_dotenv(ROOT / ".env")
 
 from campaign_client import fetch_all_campaigns, fetch_campaign_by_id, get_campaign_meta

@@ -9,7 +9,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-DB_PATH = Path(os.getenv("PROFILE_DB_PATH", "data/profiles.db"))
+from runtime_paths import data_path
+
+DB_PATH = Path(os.getenv("PROFILE_DB_PATH", str(data_path("profiles.db"))))
 
 DEFAULT_PROFILE: dict[str, Any] = {
     "channel_url": None,

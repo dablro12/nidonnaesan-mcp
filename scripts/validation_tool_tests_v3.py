@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""MCP v1.1 검증 — 지역·마감임박·확장 팁 중심 (11툴×10)."""
+"""MCP v1.2 검증 — 통합 추천·compact 표·신청한마디 v2 (12툴×10)."""
 
 from __future__ import annotations
 
@@ -21,15 +21,59 @@ from application_comment import generate_comment
 from aptitude_test import run_aptitude_test
 from campaign_client import fetch_all_campaigns, fetch_campaign_by_id
 from campaign_filters import hot_campaigns, search_by_need, urgent_campaigns
-from campaign_formatter import campaigns_to_markdown
+from campaign_formatter import campaigns_to_compact_markdown, campaigns_to_markdown
+from campaign_recommender import recommend_campaigns
+from campaign_resolver import resolve_campaign
 from channel_profile import analyze_channel
 from experience_value import enrich_campaign
+from product_research import research_product_context
 from naver_shopping import search_market_price
 from profile_store import filter_defaults, get_profile, set_profile
 from tips_loader import get_sponsorship_tip, load_tip
 
 SAMPLE_BLOG = "https://blog.naver.com/dablro12"
-DB_KEY = {"_user_key": "validation:v2"}
+DB_KEY = {"_user_key": "validation:v3"}
+
+
+async def recommend(**kw):
+    campaigns = await fetch_all_campaigns()
+    profile = kw.pop("profile", None)
+    f = kw.get("filters") or filter_defaults(get_profile(profile_fallback=profile) or profile or {})
+    picked, meta = recommend_campaigns(
+        campaigns,
+        mode=kw.get("mode", "by_need"),
+        need_text=kw.get("need_text"),
+        top_n=kw.get("top_n", 5),
+        filters=f,
+        sort_by=kw.get("sort_by", "popular"),
+        max_dday=kw.get("max_dday", 1),
+        region=kw.get("region"),
+    )
+    rows = [enrich_campaign(c) for c in picked]
+    fmt = kw.get("table_format", "compact")
+    if fmt == "compact":
+        md = campaigns_to_compact_markdown(rows, title=meta.get("mode", "rec"))
+    else:
+        md = campaigns_to_markdown(rows, title=meta.get("mode", "rec"))
+    return {"mode": meta.get("mode"), "count": len(rows), "preview": md[:200]}
+
+
+async def app_comment_v2(**kw):
+    campaign, mode = await resolve_campaign(
+        campaign_id=kw.get("campaign_id"),
+        product_name=kw.get("product_name"),
+        campaign_url=kw.get("campaign_url"),
+    )
+    if not campaign:
+        raise ValueError("not found")
+    url = kw.get("channel_url") or SAMPLE_BLOG
+    ch = await analyze_channel(url)
+    if ch.get("error"):
+        raise ValueError(ch["error"])
+    research = await research_product_context(campaign.get("title") or "")
+    return generate_comment(
+        campaign, ch, tone=kw.get("tone", "natural"), product_context=research.get("context")
+    )
 
 
 @dataclass
@@ -167,6 +211,18 @@ async def build_cases() -> dict[str, list[Case]]:
     lodging = next((c["id"] for c in camps if c.get("category") == "숙박"), camps[0]["id"])
 
     return {
+        "get_campaign_recommendations": [
+            Case("simple", "easy_pick 초보", recommend, {"mode": "easy_pick"}),
+            Case("medium", "by_need 서울 맛집", recommend, {"mode": "by_need", "need_text": "서울 맛집 협찬"}),
+            Case("medium", "urgent D-1", recommend, {"mode": "urgent", "max_dday": 1}),
+            Case("complex", "low_competition", recommend, {"mode": "by_need", "need_text": "카페", "sort_by": "low_competition"}),
+            Case("complex", "부평 region", recommend, {"mode": "by_need", "need_text": "부평 숙박", "region": "부평"}),
+            Case("simple", "compact top3", recommend, {"mode": "easy_pick", "top_n": 3}),
+            Case("medium", "full table", recommend, {"mode": "by_need", "need_text": "뷰티", "table_format": "full"}),
+            Case("complex", "프로필+니즈", recommend, {"mode": "by_need", "need_text": "방문형", "profile": {"region": "서울"}}),
+            Case("medium", "urgent 서울", recommend, {"mode": "urgent", "region": "서울"}),
+            Case("complex", "뷰티 배송 니즈", recommend, {"mode": "by_need", "need_text": "뷰티 배송형 협찬", "sort_by": "low_competition"}),
+        ],
         "get_today_hot_campaigns": [
             Case("simple", "기본 5", hot, {}),
             Case("medium", "맛집 카테고리", hot, {"filters": {"category": "맛집"}}),
@@ -228,16 +284,16 @@ async def build_cases() -> dict[str, list[Case]]:
             Case("complex", "no scheme", channel, {"url": "blog.naver.com/dablro12"}),
         ],
         "generate_application_comment": [
-            Case("simple", "맛집 natural", app_comment, {"campaign_id": seoul_food}),
-            Case("medium", "polite", app_comment, {"campaign_id": seoul_food, "tone": "polite"}),
-            Case("medium", "숙박 appeal", app_comment, {"campaign_id": lodging, "tone": "appeal"}),
-            Case("complex", "invalid id", app_comment, {"campaign_id": "nope"}, expect_error=True),
-            Case("simple", "재생성", app_comment, {"campaign_id": seoul_food, "tone": "natural"}),
-            Case("medium", "lodging polite", app_comment, {"campaign_id": lodging, "tone": "polite"}),
-            Case("complex", "bad channel", app_comment, {"campaign_id": seoul_food, "channel_url": "https://blog.naver.com/__none__"}, expect_error=True),
-            Case("medium", "appeal food", app_comment, {"campaign_id": seoul_food, "tone": "appeal"}),
-            Case("simple", "food natural2", app_comment, {"campaign_id": seoul_food}),
-            Case("complex", "lodging natural", app_comment, {"campaign_id": lodging}),
+            Case("simple", "맛집 natural", app_comment_v2, {"campaign_id": seoul_food}),
+            Case("medium", "product_name", app_comment_v2, {"product_name": "파스타"}),
+            Case("medium", "polite", app_comment_v2, {"campaign_id": seoul_food, "tone": "polite"}),
+            Case("medium", "숙박 appeal", app_comment_v2, {"campaign_id": lodging, "tone": "appeal"}),
+            Case("complex", "invalid id", app_comment_v2, {"campaign_id": "nope"}, expect_error=True),
+            Case("simple", "재생성", app_comment_v2, {"campaign_id": seoul_food, "tone": "natural"}),
+            Case("medium", "lodging polite", app_comment_v2, {"campaign_id": lodging, "tone": "polite"}),
+            Case("complex", "bad channel", app_comment_v2, {"campaign_id": seoul_food, "channel_url": "https://blog.naver.com/__none__"}, expect_error=True),
+            Case("medium", "appeal food", app_comment_v2, {"campaign_id": seoul_food, "tone": "appeal"}),
+            Case("complex", "no identifier", app_comment_v2, {}, expect_error=True),
         ],
         "get_campaign_link": [
             Case("simple", "서울 맛집 ID", link, {"campaign_id": seoul_food}),
@@ -273,7 +329,7 @@ async def build_cases() -> dict[str, list[Case]]:
             Case("simple", "platform", tips, {"topic": "platform"}),
             Case("medium", "광고표기 query", tips, {"query": "광고 표기 어떻게"}),
             Case("complex", "auto beginner", tips, {"topic": "auto", "profile": {"experience_level": "beginner", "read_tip_ids": []}, "use_profile": True}),
-            Case("complex", "tip content len", tip_content_len, {}),
+            Case("complex", "naver_seo", tips, {"topic": "naver_seo"}),
         ],
         "set_reviewer_profile": [
             Case("simple", "region 서울", set_prof, {"region": "서울"}),

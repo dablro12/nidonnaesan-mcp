@@ -7,7 +7,9 @@ import re
 from pathlib import Path
 from typing import Any
 
-TIPS_DIR = Path(__file__).resolve().parent / "data" / "tips"
+from runtime_paths import data_path
+
+TIPS_DIR = data_path("tips")
 
 LEGACY_SLUG_MAP = {
     "selection_rate": "selection-rate-tips",
@@ -15,6 +17,7 @@ LEGACY_SLUG_MAP = {
     "platform": "platform-comparison",
     "ad_disclosure": "advertising-disclosure",
     "posting_omission": "posting-missing",
+    "naver_seo": "naver-seo-guide",
 }
 
 

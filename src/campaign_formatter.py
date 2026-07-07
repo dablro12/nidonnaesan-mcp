@@ -5,6 +5,33 @@ from __future__ import annotations
 from typing import Any
 
 
+def campaigns_to_compact_markdown(rows: list[dict[str, Any]], *, title: str = "협찬 추천") -> str:
+    """4컬럼 슬림 표: 협찬 제품명 | 경쟁률 | 제품가격 | 바로가기."""
+    if not rows:
+        return f"## {title}\n\n조건에 맞는 캠페인이 없습니다."
+
+    lines = [
+        f"## {title}",
+        "",
+        "| 협찬 제품명 | 경쟁률 | 제품가격 | 바로가기 |",
+        "|-------------|--------|----------|----------|",
+    ]
+    for r in rows:
+        name = r.get("title", "-")
+        comp = r.get("competition", "-")
+        price = r.get("provided_value")
+        if price:
+            price_str = f"{price:,}원"
+        elif r.get("benefit") and r.get("benefit") != "상세페이지 참고":
+            price_str = str(r.get("benefit", "-"))[:24]
+        else:
+            price_str = "-"
+        url = r.get("apply_url") or "-"
+        link = f"[신청]({url})" if url != "-" else "-"
+        lines.append(f"| {name} | {comp} | {price_str} | {link} |")
+    return "\n".join(lines)
+
+
 def campaigns_to_markdown(rows: list[dict[str, Any]], *, title: str = "협찬 캠페인") -> str:
     if not rows:
         return f"## {title}\n\n조건에 맞는 캠페인이 없습니다."

@@ -1,6 +1,6 @@
 [project]
 name = "nidonnaesan-mcp"
-version = "0.2.0"
+version = "0.3.0"
 description = "니돈내산 - 협찬 받고, 신청까지 한 번에 MCP"
 requires-python = ">=3.10"
 dependencies = [
@@ -14,4 +14,4 @@ nidonnaesan = "nidonnaesan_server:main"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-pythonpath = ["."]
+pythonpath = ["src", "."]
