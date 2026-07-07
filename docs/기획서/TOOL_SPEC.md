@@ -1,7 +1,7 @@
 # 니돈내산 MCP Tool 스펙
 
 서비스: **nidonnaesan(니돈내산)**  
-툴 개수: **10개** (카카오 PlayMCP 권장 3~10개, 상한 20개)  
+툴 개수: **11개** (v1.1: `get_urgent_campaigns` 추가)  
 전송: Streamable HTTP, Stateless (no session)
 
 공통 규칙:
@@ -86,9 +86,37 @@
 
 ---
 
+## 1b. `get_urgent_campaigns` (v1.1)
+
+**description**: Returns sponsorship campaigns with imminent deadlines (D-0/D-1) from nidonnaesan(니돈내산), sorted by urgency then applicant count.
+
+### inputSchema
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "top_n": { "type": "integer", "default": 5 },
+    "max_dday": { "type": "integer", "default": 1, "description": "0=today, 1=tomorrow" },
+    "filters": { "type": "object", "properties": { "category": {}, "region": {}, "type": {} } },
+    "profile": { "type": "object" },
+    "region": { "type": "string", "description": "e.g. 서울, 부평, 수도권" }
+  }
+}
+```
+
+### annotations
+
+| field | value |
+|-------|-------|
+| title | Urgent Deadline Campaigns |
+| readOnlyHint | true |
+
+---
+
 ## 2. `search_campaigns_by_need`
 
-**description**: Searches sponsorship campaigns by natural-language need from nidonnaesan(니돈내산). Returns 3-5 matched campaigns with value and competition labels.
+**description**: Searches sponsorship campaigns by natural-language need from nidonnaesan(니돈내산). Parses region (서울쪽, 부평) and category (레스토랑→맛집) from query. Returns 3-5 matched campaigns.
 
 ### inputSchema
 

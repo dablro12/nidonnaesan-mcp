@@ -122,4 +122,7 @@ def filter_defaults(profile: dict[str, Any] | None) -> dict[str, str]:
         val = profile.get(src)
         if val and val != "전체":
             defaults[dst] = val
+    region = profile.get("region")
+    if region and region not in ("전국", "전체"):
+        defaults["region"] = region
     return defaults

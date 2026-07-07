@@ -21,3 +21,6 @@ jobs:
 
       - name: Run tests
         run: pytest tests/ -q
+
+      - name: Validation v2 (11 tools x 10)
+        run: PYTHONPATH=. python scripts/validation_tool_tests_v2.py

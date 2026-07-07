@@ -1,50 +1,637 @@
 {
-  "version": "1.0.0",
+  "version": "2.0.0",
+  "source": "https://blogreviewzip.com/tips",
   "topics": [
     {
       "id": "selection_rate",
-      "file": "selection-rate-7.json",
+      "slug": "selection-rate-tips",
+      "file": "selection-rate-tips.md",
       "title": "체험단 선정률 높이는 방법 7가지",
-      "keywords": ["선정률", "신청 메시지", "선정", "탈락", "신청합니다"],
-      "recommended_for": ["beginner", "apply"],
-      "priority": 1
+      "keywords": [
+        "체험단",
+        "선정률",
+        "높이는",
+        "방법",
+        "7가지",
+        "selection rate tips"
+      ],
+      "category": "선정률",
+      "priority": 1,
+      "source_url": "https://blogreviewzip.com/tips/selection-rate-tips",
+      "recommended_for": [
+        "beginner"
+      ]
     },
     {
       "id": "blog_index",
-      "file": "blog-index.json",
+      "slug": "blog-index-explained",
+      "file": "blog-index-explained.md",
       "title": "블로그 지수란? 체험단 선정에 미치는 영향",
-      "keywords": ["블로그 지수", "C-Rank", "DIA", "저품질", "노출"],
-      "recommended_for": ["blog_health", "apply"],
-      "priority": 2
+      "keywords": [
+        "블로그",
+        "지수란",
+        "체험단",
+        "선정에",
+        "미치는",
+        "영향",
+        "blog index explained"
+      ],
+      "category": "선정률",
+      "priority": 2,
+      "source_url": "https://blogreviewzip.com/tips/blog-index-explained",
+      "recommended_for": [
+        "beginner"
+      ]
     },
     {
       "id": "platform",
-      "file": "platform-guide.json",
+      "slug": "platform-comparison",
+      "file": "platform-comparison.md",
       "title": "체험단 플랫폼 특징 총정리 (2026년 기준)",
-      "keywords": ["레뷰", "티블", "체험뷰", "리뷰진", "플랫폼", "처음", "초보"],
-      "recommended_for": ["beginner", "platform"],
-      "priority": 3
+      "keywords": [
+        "체험단",
+        "플랫폼",
+        "특징",
+        "총정리",
+        "2026년",
+        "기준",
+        "platform comparison"
+      ],
+      "category": "플랫폼",
+      "priority": 3,
+      "source_url": "https://blogreviewzip.com/tips/platform-comparison",
+      "recommended_for": [
+        "beginner"
+      ]
     },
     {
       "id": "ad_disclosure",
-      "file": "ad-disclosure.json",
-      "title": "체험단 후기 광고 표기법",
-      "keywords": ["광고 표기", "공정위", "협찬", "표시광고법", "원고료"],
-      "recommended_for": ["review"],
-      "priority": 4
+      "slug": "advertising-disclosure",
+      "file": "advertising-disclosure.md",
+      "title": "체험단 후기 광고 표기법 완전 정리 — 공정위 기준",
+      "keywords": [
+        "체험단",
+        "후기",
+        "광고",
+        "표기법",
+        "완전",
+        "정리",
+        "공정위",
+        "기준",
+        "advertising disclosure"
+      ],
+      "category": "규정",
+      "priority": 4,
+      "source_url": "https://blogreviewzip.com/tips/advertising-disclosure",
+      "recommended_for": [
+        "beginner"
+      ]
     },
     {
       "id": "posting_omission",
-      "file": "posting-omission.json",
-      "title": "포스팅 누락이란? 체험단 불이익 예방하는 법",
-      "keywords": ["누락", "저품질", "검색", "미제출", "패널티"],
-      "recommended_for": ["review", "blog_health"],
-      "priority": 5
+      "slug": "posting-missing",
+      "file": "posting-missing.md",
+      "title": "체험단 후기가 검색에서 사라진다면 — 포스팅 누락 원인과 자가진단",
+      "keywords": [
+        "체험단",
+        "후기가",
+        "검색에서",
+        "사라진다면",
+        "포스팅",
+        "누락",
+        "원인과",
+        "자가진단",
+        "posting missing"
+      ],
+      "category": "리뷰작성",
+      "priority": 5,
+      "source_url": "https://blogreviewzip.com/tips/posting-missing",
+      "recommended_for": [
+        "beginner"
+      ]
+    },
+    {
+      "id": "ai_briefing_review_guide",
+      "slug": "ai-briefing-review-guide",
+      "file": "ai-briefing-review-guide.md",
+      "title": "네이버가 직접 밝힌 AI 브리핑 인용 기준 — 체험단 리뷰에 적용하면",
+      "keywords": [
+        "네이버가",
+        "직접",
+        "밝힌",
+        "AI",
+        "브리핑",
+        "인용",
+        "기준",
+        "체험단",
+        "리뷰에",
+        "적용하면",
+        "ai briefing review guide"
+      ],
+      "category": "리뷰작성",
+      "priority": 50,
+      "source_url": "https://blogreviewzip.com/tips/ai-briefing-review-guide",
+      "recommended_for": [
+        "intermediate"
+      ]
+    },
+    {
+      "id": "beginner_mistakes",
+      "slug": "beginner-mistakes",
+      "file": "beginner-mistakes.md",
+      "title": "체험단 초보가 가장 많이 하는 실수 5가지",
+      "keywords": [
+        "체험단",
+        "초보가",
+        "가장",
+        "많이",
+        "하는",
+        "실수",
+        "5가지",
+        "beginner mistakes"
+      ],
+      "category": "선정률",
+      "priority": 50,
+      "source_url": "https://blogreviewzip.com/tips/beginner-mistakes",
+      "recommended_for": [
+        "beginner"
+      ]
+    },
+    {
+      "id": "blog_ghostwriting_lowquality",
+      "slug": "blog-ghostwriting-lowquality",
+      "file": "blog-ghostwriting-lowquality.md",
+      "title": "꼭 피해야 하는 블로그 수익화 방법 — '원고 알바'와 저품질",
+      "keywords": [
+        "피해야",
+        "하는",
+        "블로그",
+        "수익화",
+        "방법",
+        "원고",
+        "알바",
+        "저품질",
+        "blog ghostwriting lowquality"
+      ],
+      "category": "도구관리",
+      "priority": 50,
+      "source_url": "https://blogreviewzip.com/tips/blog-ghostwriting-lowquality",
+      "recommended_for": [
+        "intermediate"
+      ]
+    },
+    {
+      "id": "blog_portfolio",
+      "slug": "blog-portfolio",
+      "file": "blog-portfolio.md",
+      "title": "체험단 선정률 높이는 블로그 포트폴리오 만들기",
+      "keywords": [
+        "체험단",
+        "선정률",
+        "높이는",
+        "블로그",
+        "포트폴리오",
+        "만들기",
+        "blog portfolio"
+      ],
+      "category": "선정률",
+      "priority": 50,
+      "source_url": "https://blogreviewzip.com/tips/blog-portfolio",
+      "recommended_for": [
+        "intermediate"
+      ]
+    },
+    {
+      "id": "blog_title_seo",
+      "slug": "blog-title-seo",
+      "file": "blog-title-seo.md",
+      "title": "체험단 포스팅 제목 쓰는 법 — 검색에 걸리는 제목",
+      "keywords": [
+        "체험단",
+        "포스팅",
+        "제목",
+        "쓰는",
+        "검색에",
+        "걸리는",
+        "blog title seo"
+      ],
+      "category": "리뷰작성",
+      "priority": 50,
+      "source_url": "https://blogreviewzip.com/tips/blog-title-seo",
+      "recommended_for": [
+        "intermediate"
+      ]
+    },
+    {
+      "id": "campaign_management",
+      "slug": "campaign-management",
+      "file": "campaign-management.md",
+      "title": "블로그 체험단 관리 꿀팁 — 신청 추적부터 마감일까지",
+      "keywords": [
+        "블로그",
+        "체험단",
+        "관리",
+        "꿀팁",
+        "신청",
+        "추적부터",
+        "마감일까지",
+        "campaign management"
+      ],
+      "category": "선정률",
+      "priority": 50,
+      "source_url": "https://blogreviewzip.com/tips/campaign-management",
+      "recommended_for": [
+        "intermediate"
+      ]
+    },
+    {
+      "id": "campaign_sites_and_tips",
+      "slug": "campaign-sites-and-tips",
+      "file": "campaign-sites-and-tips.md",
+      "title": "체험단 5년, 직접 써보고 고른 사이트와 초보 당첨 팁",
+      "keywords": [
+        "체험단",
+        "5년",
+        "직접",
+        "써보고",
+        "고른",
+        "사이트와",
+        "초보",
+        "당첨",
+        "campaign sites and tips"
+      ],
+      "category": "선정률",
+      "priority": 50,
+      "source_url": "https://blogreviewzip.com/tips/campaign-sites-and-tips",
+      "recommended_for": [
+        "beginner"
+      ]
+    },
+    {
+      "id": "collab_comment_scams",
+      "slug": "collab-comment-scams",
+      "file": "collab-comment-scams.md",
+      "title": "블로그 협업 댓글, 믿어도 될까 — 가짜 체험단·리뷰 알바 거르는 법",
+      "keywords": [
+        "블로그",
+        "협업",
+        "댓글",
+        "믿어도",
+        "될까",
+        "가짜",
+        "체험단",
+        "리뷰",
+        "알바",
+        "거르는",
+        "collab comment scams"
+      ],
+      "category": "리뷰작성",
+      "priority": 50,
+      "source_url": "https://blogreviewzip.com/tips/collab-comment-scams",
+      "recommended_for": [
+        "intermediate"
+      ]
+    },
+    {
+      "id": "coupang_reward_partners_income",
+      "slug": "coupang-reward-partners-income",
+      "file": "coupang-reward-partners-income.md",
+      "title": "쿠팡으로 블로그 수익 내기 — 리워드 프로그램과 파트너스",
+      "keywords": [
+        "쿠팡으로",
+        "블로그",
+        "수익",
+        "내기",
+        "리워드",
+        "프로그램과",
+        "파트너스",
+        "coupang reward partners income"
+      ],
+      "category": "도구관리",
+      "priority": 50,
+      "source_url": "https://blogreviewzip.com/tips/coupang-reward-partners-income",
+      "recommended_for": [
+        "intermediate"
+      ]
+    },
+    {
+      "id": "deadline_missed",
+      "slug": "deadline-missed",
+      "file": "deadline-missed.md",
+      "title": "체험단 마감일 놓쳤을 때 대처법",
+      "keywords": [
+        "체험단",
+        "마감일",
+        "놓쳤을",
+        "대처법",
+        "deadline missed"
+      ],
+      "category": "도구관리",
+      "priority": 50,
+      "source_url": "https://blogreviewzip.com/tips/deadline-missed",
+      "recommended_for": [
+        "intermediate"
+      ]
+    },
+    {
+      "id": "delivery_vs_visit",
+      "slug": "delivery-vs-visit",
+      "file": "delivery-vs-visit.md",
+      "title": "배송형 vs 방문형 체험단, 나에게 맞는 유형은?",
+      "keywords": [
+        "배송형",
+        "vs",
+        "방문형",
+        "체험단",
+        "나에게",
+        "맞는",
+        "유형은",
+        "delivery vs visit"
+      ],
+      "category": "도구관리",
+      "priority": 50,
+      "source_url": "https://blogreviewzip.com/tips/delivery-vs-visit",
+      "recommended_for": [
+        "intermediate"
+      ]
+    },
+    {
+      "id": "first_campaign_checklist",
+      "slug": "first-campaign-checklist",
+      "file": "first-campaign-checklist.md",
+      "title": "체험단 처음 시작하기 — 준비부터 첫 선정까지",
+      "keywords": [
+        "체험단",
+        "처음",
+        "시작하기",
+        "준비부터",
+        "선정까지",
+        "first campaign checklist"
+      ],
+      "category": "선정률",
+      "priority": 50,
+      "source_url": "https://blogreviewzip.com/tips/first-campaign-checklist",
+      "recommended_for": [
+        "intermediate"
+      ]
+    },
+    {
+      "id": "food_campaign_tips",
+      "slug": "food-campaign-tips",
+      "file": "food-campaign-tips.md",
+      "title": "맛집 체험단 100% 활용하는 법",
+      "keywords": [
+        "맛집",
+        "체험단",
+        "100",
+        "활용하는",
+        "food campaign tips"
+      ],
+      "category": "도구관리",
+      "priority": 50,
+      "source_url": "https://blogreviewzip.com/tips/food-campaign-tips",
+      "recommended_for": [
+        "intermediate"
+      ]
+    },
+    {
+      "id": "honest_review_rules",
+      "slug": "honest-review-rules",
+      "file": "honest-review-rules.md",
+      "title": "광고 글로 안 찍히는 체험단 후기 — 캠페인 운영하는 쪽에서 본 기준",
+      "keywords": [
+        "광고",
+        "글로",
+        "찍히는",
+        "체험단",
+        "후기",
+        "캠페인",
+        "운영하는",
+        "쪽에서",
+        "기준",
+        "honest review rules"
+      ],
+      "category": "리뷰작성",
+      "priority": 50,
+      "source_url": "https://blogreviewzip.com/tips/honest-review-rules",
+      "recommended_for": [
+        "intermediate"
+      ]
+    },
+    {
+      "id": "instagram_review_tips",
+      "slug": "instagram-review-tips",
+      "file": "instagram-review-tips.md",
+      "title": "인스타그램 체험단 후기 잘 올리는 법",
+      "keywords": [
+        "인스타그램",
+        "체험단",
+        "후기",
+        "올리는",
+        "instagram review tips"
+      ],
+      "category": "도구관리",
+      "priority": 50,
+      "source_url": "https://blogreviewzip.com/tips/instagram-review-tips",
+      "recommended_for": [
+        "intermediate"
+      ]
+    },
+    {
+      "id": "multiple_platform_strategy",
+      "slug": "multiple-platform-strategy",
+      "file": "multiple-platform-strategy.md",
+      "title": "체험단 플랫폼 여러 개 동시에 쓰는 법",
+      "keywords": [
+        "체험단",
+        "플랫폼",
+        "여러",
+        "동시에",
+        "쓰는",
+        "multiple platform strategy"
+      ],
+      "category": "플랫폼",
+      "priority": 50,
+      "source_url": "https://blogreviewzip.com/tips/multiple-platform-strategy",
+      "recommended_for": [
+        "intermediate"
+      ]
+    },
+    {
+      "id": "naver_adpost_income",
+      "slug": "naver-adpost-income",
+      "file": "naver-adpost-income.md",
+      "title": "블로그 광고로 수익 내기 — 애드포스트 승인 조건과 실제 수익 공개",
+      "keywords": [
+        "블로그",
+        "광고로",
+        "수익",
+        "내기",
+        "애드포스트",
+        "승인",
+        "조건과",
+        "실제",
+        "공개",
+        "naver adpost income"
+      ],
+      "category": "도구관리",
+      "priority": 50,
+      "source_url": "https://blogreviewzip.com/tips/naver-adpost-income",
+      "recommended_for": [
+        "intermediate"
+      ]
+    },
+    {
+      "id": "naver_place_vs_blog",
+      "slug": "naver-place-vs-blog",
+      "file": "naver-place-vs-blog.md",
+      "title": "네이버 플레이스 리뷰 vs 블로그 체험단 — 차이점",
+      "keywords": [
+        "네이버",
+        "플레이스",
+        "리뷰",
+        "vs",
+        "블로그",
+        "체험단",
+        "차이점",
+        "naver place vs blog"
+      ],
+      "category": "리뷰작성",
+      "priority": 50,
+      "source_url": "https://blogreviewzip.com/tips/naver-place-vs-blog",
+      "recommended_for": [
+        "intermediate"
+      ]
+    },
+    {
+      "id": "payback_partners_disclosure",
+      "slug": "payback-partners-disclosure",
+      "file": "payback-partners-disclosure.md",
+      "title": "페이백·제휴 수수료도 광고 표기 대상입니다 — 개정 심사지침 정리",
+      "keywords": [
+        "페이백",
+        "제휴",
+        "수수료도",
+        "광고",
+        "표기",
+        "대상입니다",
+        "개정",
+        "심사지침",
+        "정리",
+        "payback partners disclosure"
+      ],
+      "category": "규정",
+      "priority": 50,
+      "source_url": "https://blogreviewzip.com/tips/payback-partners-disclosure",
+      "recommended_for": [
+        "intermediate"
+      ]
+    },
+    {
+      "id": "photo_tips_by_category",
+      "slug": "photo-tips-by-category",
+      "file": "photo-tips-by-category.md",
+      "title": "체험단 사진 잘 찍는 법 — 업종별 완벽 가이드",
+      "keywords": [
+        "체험단",
+        "사진",
+        "찍는",
+        "업종별",
+        "완벽",
+        "가이드",
+        "photo tips by category"
+      ],
+      "category": "리뷰작성",
+      "priority": 50,
+      "source_url": "https://blogreviewzip.com/tips/photo-tips-by-category",
+      "recommended_for": [
+        "intermediate"
+      ]
+    },
+    {
+      "id": "review_rejected",
+      "slug": "review-rejected",
+      "file": "review-rejected.md",
+      "title": "리뷰가 반려됐다 — 이유와 해결 방법",
+      "keywords": [
+        "리뷰가",
+        "반려됐다",
+        "이유와",
+        "해결",
+        "방법",
+        "review rejected"
+      ],
+      "category": "리뷰작성",
+      "priority": 50,
+      "source_url": "https://blogreviewzip.com/tips/review-rejected",
+      "recommended_for": [
+        "intermediate"
+      ]
+    },
+    {
+      "id": "review_writing_guide",
+      "slug": "review-writing-guide",
+      "file": "review-writing-guide.md",
+      "title": "체험단 리뷰 잘 쓰는 법 — 선정률 올리는 포스팅 구조",
+      "keywords": [
+        "체험단",
+        "리뷰",
+        "쓰는",
+        "선정률",
+        "올리는",
+        "포스팅",
+        "구조",
+        "review writing guide"
+      ],
+      "category": "선정률",
+      "priority": 50,
+      "source_url": "https://blogreviewzip.com/tips/review-writing-guide",
+      "recommended_for": [
+        "intermediate"
+      ]
+    },
+    {
+      "id": "revu_grade_system",
+      "slug": "revu-grade-system",
+      "file": "revu-grade-system.md",
+      "title": "레뷰 등급 올리는 법 — 일반에서 최우수까지",
+      "keywords": [
+        "레뷰",
+        "등급",
+        "올리는",
+        "일반에서",
+        "최우수까지",
+        "revu grade system"
+      ],
+      "category": "플랫폼",
+      "priority": 50,
+      "source_url": "https://blogreviewzip.com/tips/revu-grade-system",
+      "recommended_for": [
+        "intermediate"
+      ]
     }
   ],
   "auto_recommendation_order": {
-    "none": ["selection_rate", "platform", "blog_index", "ad_disclosure", "posting_omission"],
-    "beginner": ["selection_rate", "platform", "blog_index"],
-    "intermediate": ["blog_index", "ad_disclosure", "posting_omission"]
+    "none": [
+      "selection_rate",
+      "platform",
+      "blog_index",
+      "ad_disclosure",
+      "posting_omission"
+    ],
+    "beginner": [
+      "selection_rate",
+      "platform",
+      "blog_index",
+      "first_campaign_checklist",
+      "campaign_sites_and_tips"
+    ],
+    "intermediate": [
+      "blog_index",
+      "ad_disclosure",
+      "posting_omission",
+      "review_writing_guide",
+      "photo_tips_by_category"
+    ]
   }
 }

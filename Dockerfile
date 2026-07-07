@@ -6,13 +6,14 @@ WORKDIR /app
 COPY server/requirements.txt ./server/requirements.txt
 RUN pip install --no-cache-dir -r server/requirements.txt
 
-COPY nidonnaesan_server.py campaign_client.py campaign_filters.py experience_value.py \
+COPY nidonnaesan_server.py campaign_client.py campaign_filters.py campaign_geo.py experience_value.py \
     aptitude_test.py profile_store.py tips_loader.py naver_shopping.py channel_profile.py \
     application_comment.py campaign_formatter.py mcp_tool_result.py ./
 COPY scripts/ ./scripts/
 COPY data/ ./data/
 
 RUN pip install --no-cache-dir httpx && python scripts/sync_campaigns.py && \
+    python scripts/sync_blogreviewzip_tips.py && \
     test -f data/campaigns/campaigns.json
 
 ARG NAVER_CLIENT_ID=""

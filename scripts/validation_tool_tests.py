@@ -5,9 +5,17 @@ from __future__ import annotations
 
 import asyncio
 import json
+import sys
 import traceback
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any, Callable
+
+from dotenv import load_dotenv
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+load_dotenv(ROOT / ".env")
 
 from application_comment import generate_comment
 from aptitude_test import run_aptitude_test
@@ -30,6 +38,7 @@ class Case:
     name: str
     fn: Callable
     kwargs: dict[str, Any]
+    expect_error: bool = False
 
 
 def _preview(result: Any, max_len: int = 400) -> str:
@@ -51,9 +60,14 @@ async def run_case(case: Case) -> dict[str, Any]:
         status = "OK"
         err = None
     except Exception as exc:
-        status = "FAIL"
-        result = None
-        err = f"{exc.__class__.__name__}: {exc}"
+        if case.expect_error:
+            status = "OK"
+            err = f"(expected) {exc.__class__.__name__}: {exc}"
+            result = None
+        else:
+            status = "FAIL"
+            result = None
+            err = f"{exc.__class__.__name__}: {exc}"
     return {
         "level": case.level,
         "name": case.name,
@@ -78,7 +92,7 @@ async def search(need_text, top_n=5, filters=None, profile=None):
     campaigns = await fetch_all_campaigns()
     stored = get_profile(profile_fallback=profile) or profile
     f = filters or filter_defaults(stored or {})
-    matched, kws, mode = search_by_need(campaigns, need_text, top_n=top_n, filters=f or None)
+    matched, kws, mode, _intent = search_by_need(campaigns, need_text, top_n=top_n, filters=f or None)
     rows = [enrich_campaign(c) for c in matched]
     return {"keywords": kws, "mode": mode, "count": len(rows), "titles": [r["title"] for r in rows[:3]]}
 
@@ -88,8 +102,12 @@ async def market_price(campaign_id=None, keyword=None):
     campaign = None
     if campaign_id:
         campaign = await fetch_campaign_by_id(campaign_id)
+        if not campaign and not kw:
+            raise ValueError(f"캠페인을 찾을 수 없습니다: {campaign_id}")
         kw = kw or (campaign or {}).get("title", "")
-    market = await search_market_price(kw or "")
+    if not kw:
+        raise ValueError("campaign_id 또는 keyword가 필요합니다.")
+    market = await search_market_price(kw)
     return {"keyword": kw, "market": market, "campaign_found": campaign is not None}
 
 
@@ -110,9 +128,11 @@ async def app_comment(campaign_id, channel_url=None, tone="natural", profile=Non
 
 
 async def link(campaign_id):
-    c = await fetch_campaign_by_id(campaign_id)
+    if not campaign_id or not str(campaign_id).strip():
+        raise ValueError("campaign_id가 필요합니다.")
+    c = await fetch_campaign_by_id(campaign_id.strip())
     if not c:
-        raise ValueError("not found")
+        raise ValueError(f"캠페인을 찾을 수 없습니다: {campaign_id}")
     return {"apply_url": c.get("originalUrl"), "platform": c.get("platform")}
 
 
@@ -143,7 +163,7 @@ def get_prof(profile=None):
 
 
 async def get_sample_campaign_id() -> str | None:
-    camps = await fetch_all_campaigns(limit=5)
+    camps = await fetch_all_campaigns()
     return camps[0]["id"] if camps else None
 
 
@@ -184,8 +204,8 @@ async def build_cases() -> dict[str, list[Case]]:
             Case("complex", "캠페인+키워드 오버라이드", market_price, {"campaign_id": cid, "keyword": "맛집"}),
             Case("complex", "긴 키워드", market_price, {"keyword": "강아지 사료 5kg"}),
             Case("complex", "영문 키워드", market_price, {"keyword": "bluetooth speaker"}),
-            Case("complex", "존재하지 않는 ID", market_price, {"campaign_id": "invalid-id-999"}),
-            Case("complex", "빈 키워드 없음", market_price, {}),
+            Case("complex", "존재하지 않는 ID", market_price, {"campaign_id": "invalid-id-999"}, expect_error=True),
+            Case("complex", "빈 키워드 없음", market_price, {}, expect_error=True),
         ],
         "analyze_channel_profile": [
             Case("simple", "기본 블로그", channel, {"url": SAMPLE_BLOG}),
@@ -205,23 +225,23 @@ async def build_cases() -> dict[str, list[Case]]:
             Case("medium", "appeal 톤", app_comment, {"campaign_id": cid, "tone": "appeal"}),
             Case("complex", "채널 URL 지정", app_comment, {"campaign_id": cid, "channel_url": SAMPLE_BLOG}),
             Case("complex", "프로필 channel_url", app_comment, {"campaign_id": cid, "profile": {"channel_url": SAMPLE_BLOG}}),
-            Case("complex", "잘못된 캠페인ID", app_comment, {"campaign_id": "no-such-id"}),
-            Case("complex", "채널 없음", app_comment, {"campaign_id": cid, "channel_url": None, "profile": {}}),
+            Case("complex", "잘못된 캠페인ID", app_comment, {"campaign_id": "no-such-id"}, expect_error=True),
+            Case("complex", "채널 없음", app_comment, {"campaign_id": cid, "channel_url": None, "profile": {}}, expect_error=True),
             Case("medium", "맛집 니즈 캠페인", app_comment, {"campaign_id": cid, "tone": "natural"}),
             Case("simple", "natural 재확인", app_comment, {"campaign_id": cid, "tone": "natural"}),
-            Case("complex", "invalid blog", app_comment, {"campaign_id": cid, "channel_url": "https://blog.naver.com/__nonexistent_xyz__"}),
+            Case("complex", "invalid blog", app_comment, {"campaign_id": cid, "channel_url": "https://blog.naver.com/__nonexistent_xyz__"}, expect_error=True),
         ],
         "get_campaign_link": [
             Case("simple", "유효 ID", link, {"campaign_id": cid}),
-            Case("complex", "invalid ID", link, {"campaign_id": "fake-000"}),
+            Case("complex", "invalid ID", link, {"campaign_id": "fake-000"}, expect_error=True),
             Case("simple", "하드코딩 revu", link, {"campaign_id": "revu-1367721"}),
             Case("medium", "다른 플랫폼 ID", link, {"campaign_id": cid}),
-            Case("medium", "빈 문자열", link, {"campaign_id": ""}),
-            Case("complex", "특수문자 ID", link, {"campaign_id": "revu-<script>"}),
+            Case("medium", "빈 문자열", link, {"campaign_id": ""}, expect_error=True),
+            Case("complex", "특수문자 ID", link, {"campaign_id": "revu-<script>"}, expect_error=True),
             Case("simple", "재조회", link, {"campaign_id": cid}),
-            Case("medium", "긴 ID", link, {"campaign_id": "revu-" + "1" * 20}),
-            Case("complex", "null형", link, {"campaign_id": "null"}),
-            Case("complex", "숫자만", link, {"campaign_id": "1367721"}),
+            Case("medium", "긴 ID", link, {"campaign_id": "revu-" + "1" * 20}, expect_error=True),
+            Case("complex", "null형", link, {"campaign_id": "null"}, expect_error=True),
+            Case("complex", "숫자만", link, {"campaign_id": "1367721"}, expect_error=True),
         ],
         "run_sponsorship_aptitude_test": [
             Case("simple", "맛집 블로거", aptitude, {"answers": {"channel_type": "blog", "interest_category": "맛집", "region": "서울", "posting_frequency": "yes", "campaign_type_pref": "방문형", "sponsorship_experience": "no"}}),
@@ -277,14 +297,19 @@ async def build_cases() -> dict[str, list[Case]]:
 async def main() -> None:
     all_cases = await build_cases()
     summary: dict[str, Any] = {}
+    total_ok = 0
+    total_all = 0
 
     for tool_name, cases in all_cases.items():
         results = []
         for case in cases:
             results.append(await run_case(case))
         ok = sum(1 for r in results if r["status"] == "OK")
+        total_ok += ok
+        total_all += len(cases)
         summary[tool_name] = {"passed": ok, "total": len(cases), "cases": results}
 
+    summary["_overall"] = {"passed": total_ok, "total": total_all}
     print(json.dumps(summary, ensure_ascii=False, indent=2))
 
 

@@ -26,14 +26,14 @@ SAMPLE = [
 
 
 def test_search_by_need_keyword():
-    matched, kws, mode = search_by_need(SAMPLE, "아이 튜브 협찬", top_n=3)
+    matched, kws, mode, _intent = search_by_need(SAMPLE, "아이 튜브 협찬", top_n=3)
     assert matched[0]["id"] == "1"
     assert "튜브" in kws
     assert mode == "matched"
 
 
 def test_search_fallback_popular():
-    matched, kws, mode = search_by_need(SAMPLE, "존재하지않는키워드xyz", top_n=2)
+    matched, kws, mode, _intent = search_by_need(SAMPLE, "존재하지않는키워드xyz", top_n=2)
     assert len(matched) == 2
     assert mode == "popular_fallback"
 

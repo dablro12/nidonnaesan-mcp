@@ -54,7 +54,7 @@ async def main() -> None:
 
     # 3. 랜덤 니즈 검색 10건
     for q in random.sample(SAMPLE_QUERIES, 10):
-        matched, kws, mode = search_by_need(campaigns, q, top_n=5)
+        matched, kws, mode, _intent = search_by_need(campaigns, q, top_n=5)
         results["checks"].append({
             "tool": "search_campaigns_by_need",
             "query": q,

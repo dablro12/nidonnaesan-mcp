@@ -5,6 +5,8 @@ from __future__ import annotations
 import re
 from typing import Any
 
+from campaign_geo import enrich_campaign_location, location_label
+
 BENCHMARK_BY_MEDIA: dict[str, int] = {
     "블로그": 30_000,
     "인스타그램": 40_000,
@@ -74,6 +76,8 @@ def enrich_campaign(campaign: dict[str, Any], market_price: dict[str, Any] | Non
         "experience_value": experience_value_label(provided, media),
         "provided_value": provided,
         "apply_url": campaign.get("originalUrl"),
+        "location_label": location_label(campaign),
+        **enrich_campaign_location(campaign),
     }
     if market_price:
         row["market_price"] = (

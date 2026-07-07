@@ -58,6 +58,13 @@ curl -sS "https://YOUR-ENDPOINT.playmcp-endpoint.kakaocloud.io/mcp" \
   -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-03-26","capabilities":{},"clientInfo":{"name":"test","version":"1.0"}}}'
 ```
 
+v1.1 스모크 테스트 프롬프트:
+- `마감 하루 안 남은 협찬 5개 알려줘` → `get_urgent_campaigns`
+- `서울쪽 레스토랑 협찬 추천해줘` → `search_campaigns_by_need`
+- `체험단 선정률 올리는 방법` → `get_sponsorship_tips` (28개 팁)
+
+카톡 예시 10개 → [PLAYMCP_EXAMPLES.md](PLAYMCP_EXAMPLES.md)
+
 ---
 
 ## 6. 로컬 실행

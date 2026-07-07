@@ -15,7 +15,7 @@ from mcp.server.fastmcp import FastMCP
 from application_comment import generate_comment
 from aptitude_test import run_aptitude_test
 from campaign_client import fetch_all_campaigns, fetch_campaign_by_id
-from campaign_filters import apply_filters, hot_campaigns, search_by_need
+from campaign_filters import apply_filters, hot_campaigns, search_by_need, urgent_campaigns
 from campaign_formatter import campaigns_to_markdown, dict_to_markdown
 from channel_profile import analyze_channel
 from experience_value import enrich_campaign, parse_benefit_value
@@ -95,16 +95,56 @@ async def search_campaigns_by_need(
     stored = get_profile(profile_fallback=profile) or profile
     effective_filters = _resolve_filters(filters, stored)
     campaigns = await fetch_all_campaigns()
-    matched, keywords, mode = search_by_need(
+    matched, keywords, mode, intent = search_by_need(
         campaigns, need_text, top_n=top_n, filters=effective_filters
     )
     rows = [enrich_campaign(c) for c in matched]
     header = f"니즈 탐색: {need_text}"
+    if intent.get("regions"):
+        header += f" (지역: {', '.join(intent['regions'][:3])})"
+    if intent.get("categories"):
+        header += f" (업종: {', '.join(intent['categories'])})"
     if keywords:
         header += f" (키워드: {', '.join(keywords)})"
     if mode == "popular_fallback":
         header += " — 키워드 매칭 없음, 인기순(신청자 수)으로 표시"
+    elif mode == "region_matched" and not keywords:
+        header += " — 지역 기준 인기순"
+    elif mode == "category_matched" and not keywords:
+        header += " — 업종 기준 인기순"
     return campaigns_to_markdown(rows, title=header)
+
+
+@mcp.tool(
+    annotations={**READ_ONLY, "title": "Urgent Deadline Campaigns"},
+)
+async def get_urgent_campaigns(
+    top_n: int = 5,
+    max_dday: int = 1,
+    filters: dict[str, Any] | None = None,
+    profile: dict[str, Any] | None = None,
+    region: str | None = None,
+) -> str:
+    f"""Returns sponsorship campaigns with imminent deadlines (D-0/D-1) from {SERVICE}."""
+    stored = get_profile(profile_fallback=profile) or profile
+    effective_filters = _resolve_filters(filters, stored)
+    if region:
+        effective_filters = {**effective_filters, "region": region}
+    elif stored and stored.get("region") and not effective_filters.get("region"):
+        effective_filters = {**effective_filters, "region": stored["region"]}
+    campaigns = await fetch_all_campaigns()
+    urgent = urgent_campaigns(
+        campaigns,
+        top_n=top_n,
+        max_dday=max_dday,
+        filters=effective_filters,
+        region=region or effective_filters.get("region"),
+    )
+    rows = [enrich_campaign(c) for c in urgent]
+    title = f"마감 임박 협찬 (D-{max_dday} 이내)"
+    if effective_filters.get("region"):
+        title += f" — {effective_filters['region']}"
+    return campaigns_to_markdown(rows, title=title)
 
 
 @mcp.tool(
