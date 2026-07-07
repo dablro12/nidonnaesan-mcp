@@ -6,7 +6,7 @@ import re
 from typing import Any
 from urllib.parse import urlparse
 
-from campaign_client import fetch_campaign_by_id, fetch_all_campaigns
+from campaign_client import fetch_all_campaigns, resolve_campaign_id
 
 
 def _normalize_text(text: str) -> str:
@@ -47,14 +47,14 @@ async def resolve_campaign(
 ) -> tuple[dict[str, Any] | None, str]:
     """반환: (캠페인, match_mode)."""
     if campaign_id and str(campaign_id).strip():
-        found = await fetch_campaign_by_id(str(campaign_id).strip())
+        found = await resolve_campaign_id(str(campaign_id).strip())
         return (found, "id") if found else (None, "id_not_found")
 
     if campaign_url and str(campaign_url).strip():
         url = str(campaign_url).strip()
         cid = _extract_campaign_id_from_url(url)
         if cid:
-            found = await fetch_campaign_by_id(cid)
+            found = await resolve_campaign_id(cid)
             if found:
                 return found, "url_id"
         campaigns = await fetch_all_campaigns()

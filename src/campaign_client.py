@@ -130,36 +130,69 @@ def get_campaign_by_id(campaign_id: str) -> dict[str, Any] | None:
     return _store["by_id"].get(campaign_id)
 
 
-async def fetch_campaign_by_id(campaign_id: str) -> dict[str, Any] | None:
-    if not campaign_id or not str(campaign_id).strip():
+def _numeric_suffix(campaign_id: str) -> str | None:
+    import re
+
+    cid = (campaign_id or "").strip()
+    if not cid:
+        return None
+    if cid.isdigit():
+        return cid.lstrip("0") or "0"
+    m = re.search(r"(\d{4,})$", cid.replace("CMPN_", "").replace("cmpn_", ""))
+    if m:
+        return m.group(1).lstrip("0") or "0"
+    return None
+
+
+def _find_by_suffix(suffix: str) -> dict[str, Any] | None:
+    for campaign in _store.get("campaigns") or []:
+        cid = str(campaign.get("id") or "")
+        if cid.endswith(f"-{suffix}") or cid.split("-")[-1] == suffix:
+            return campaign
+    return None
+
+
+async def resolve_campaign_id(campaign_id: str) -> dict[str, Any] | None:
+    """revu-1367756 / 1367756 / CMPN_0000001367756 등 해석."""
+    cid = (campaign_id or "").strip()
+    if not cid:
         return None
 
-    local = get_campaign_by_id(campaign_id)
+    local = get_campaign_by_id(cid)
     if local:
         return local
 
     if not _store["campaigns"]:
         await fetch_all_campaigns()
 
-    local = get_campaign_by_id(campaign_id)
+    local = get_campaign_by_id(cid)
     if local:
         return local
 
+    suffix = _numeric_suffix(cid)
+    if suffix:
+        found = _find_by_suffix(suffix)
+        if found:
+            return found
+
     async with httpx.AsyncClient(timeout=10.0) as client:
-        resp = await client.get(f"{CAMPAIGN_API_BASE}/campaigns/{campaign_id}")
-        if resp.status_code == 404:
-            return None
-        resp.raise_for_status()
-        data = resp.json()
-        if isinstance(data, dict) and "campaign" in data:
-            campaign = data["campaign"]
-        elif isinstance(data, dict):
-            campaign = data
-        else:
-            return None
-        if campaign.get("id"):
-            _store["by_id"][campaign["id"]] = campaign
-        return campaign
+        for path_id in (cid, f"revu-{suffix}" if suffix else None):
+            if not path_id:
+                continue
+            resp = await client.get(f"{CAMPAIGN_API_BASE}/campaigns/{path_id}")
+            if resp.status_code == 404:
+                continue
+            resp.raise_for_status()
+            data = resp.json()
+            campaign = data.get("campaign") if isinstance(data, dict) and "campaign" in data else data
+            if isinstance(campaign, dict) and campaign.get("id"):
+                _store["by_id"][str(campaign["id"])] = campaign
+                return campaign
+    return None
+
+
+async def fetch_campaign_by_id(campaign_id: str) -> dict[str, Any] | None:
+    return await resolve_campaign_id(campaign_id)
 
 
 def get_campaign_meta() -> dict[str, Any]:

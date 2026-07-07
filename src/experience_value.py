@@ -61,6 +61,7 @@ def enrich_campaign(campaign: dict[str, Any], market_price: dict[str, Any] | Non
     applicants = int(campaign.get("applicants") or 0)
     recruit = int(campaign.get("recruitCount") or 0)
     comp_str, comp_level = competition_label(applicants, recruit)
+    ratio = applicants / recruit if recruit > 0 else float(applicants)
 
     row = {
         "id": campaign.get("id"),
@@ -72,6 +73,7 @@ def enrich_campaign(campaign: dict[str, Any], market_price: dict[str, Any] | Non
         "benefit": benefit,
         "competition": comp_str,
         "competition_label": comp_level,
+        "competition_short": f"{ratio:.1f}:1 ({comp_level})",
         "dDay": campaign.get("dDay"),
         "experience_value": experience_value_label(provided, media),
         "provided_value": provided,

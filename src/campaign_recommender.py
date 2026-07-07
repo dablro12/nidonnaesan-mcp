@@ -74,6 +74,9 @@ def recommend_campaigns(
     """반환: (캠페인 목록, 메타)."""
     meta: dict[str, Any] = {"mode": mode, "sort_by": sort_by}
 
+    if mode == "by_need" and not need_text and sort_by == "low_competition":
+        mode = "easy_pick"
+
     if mode == "easy_pick":
         picked, sub = easy_pick_campaigns(campaigns, top_n=top_n, filters=filters)
         meta["sub_mode"] = sub

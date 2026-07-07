@@ -181,13 +181,71 @@ def search_by_need(
     return popular, keywords, mode, intent
 
 
+def diversify_by_platform(
+    campaigns: list[dict[str, Any]],
+    *,
+    top_n: int = 5,
+    max_per_platform: int = 2,
+) -> list[dict[str, Any]]:
+    """플랫폼 편중 완화 — 플랫폼별 라운드로빈."""
+    if not campaigns:
+        return []
+
+    by_platform: dict[str, list[dict[str, Any]]] = {}
+    for c in sort_by_popularity(campaigns):
+        platform = str(c.get("platform") or "기타")
+        by_platform.setdefault(platform, []).append(c)
+
+    picked: list[dict[str, Any]] = []
+    counts: dict[str, int] = {}
+    order = sorted(
+        by_platform.keys(),
+        key=lambda p: int(by_platform[p][0].get("applicants") or 0),
+        reverse=True,
+    )
+    idx = 0
+    guard = 0
+    while len(picked) < top_n and order and guard < top_n * max(len(order), 1) * 3:
+        guard += 1
+        platform = order[idx % len(order)]
+        bucket = by_platform.get(platform) or []
+        if not bucket:
+            order = [p for p in order if by_platform.get(p)]
+            if not order:
+                break
+            idx += 1
+            continue
+        if counts.get(platform, 0) >= max_per_platform:
+            idx += 1
+            continue
+        picked.append(bucket.pop(0))
+        counts[platform] = counts.get(platform, 0) + 1
+        if not bucket:
+            order = [p for p in order if by_platform.get(p)]
+        idx += 1
+
+    if len(picked) < top_n:
+        for c in sort_by_popularity(campaigns):
+            platform = str(c.get("platform") or "기타")
+            if c in picked or counts.get(platform, 0) >= max_per_platform:
+                continue
+            picked.append(c)
+            counts[platform] = counts.get(platform, 0) + 1
+            if len(picked) >= top_n:
+                break
+    return picked[:top_n]
+
+
 def hot_campaigns(
     campaigns: list[dict[str, Any]],
     *,
     top_n: int = 5,
     filters: dict[str, Any] | None = None,
+    diversify: bool = True,
 ) -> list[dict[str, Any]]:
     filtered = apply_filters(campaigns, filters)
+    if diversify:
+        return diversify_by_platform(filtered, top_n=top_n)
     return sort_by_popularity(filtered)[:top_n]
 
 

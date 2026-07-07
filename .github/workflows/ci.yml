@@ -27,3 +27,9 @@ jobs:
 
       - name: Validation v3 (12 tools x 10)
         run: PYTHONPATH=src:. python scripts/validation_tool_tests_v3.py
+
+      - name: PlayMCP scenarios (10)
+        run: PYTHONPATH=src:. python scripts/validation_playmcp_scenarios.py
+        env:
+          NAVER_CLIENT_ID: ${{ secrets.NAVER_CLIENT_ID }}
+          NAVER_CLIENT_SECRET: ${{ secrets.NAVER_CLIENT_SECRET }}
