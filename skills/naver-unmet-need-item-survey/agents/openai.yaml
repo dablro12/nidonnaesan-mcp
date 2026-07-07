@@ -1,0 +1,4 @@
+interface:
+  display_name: "Naver Unmet Need & Item Survey"
+  short_description: "네이버 리뷰 전 캠페인 미션과 상품 포인트 정리"
+  default_prompt: "Use $naver-unmet-need-item-survey to organize campaign requirements, unmet needs, and product-detail points before drafting a Naver review post."

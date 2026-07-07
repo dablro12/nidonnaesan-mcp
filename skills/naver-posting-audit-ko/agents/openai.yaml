@@ -1,0 +1,4 @@
+interface:
+  display_name: "Naver Posting Audit KO"
+  short_description: "Audit Naver posts against campaign and reference flow."
+  default_prompt: "Use $naver-posting-audit-ko to audit this Korean Naver Blog post against guidelines, reference blogger flow, media, disclosure, and search-risk checks."

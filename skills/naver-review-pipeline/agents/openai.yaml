@@ -1,0 +1,4 @@
+interface:
+  display_name: "Naver Review Pipeline"
+  short_description: "네이버 리뷰 전체 제작 파이프라인을 한 번에 실행"
+  default_prompt: "Use $naver-review-pipeline to run the full Naver review workflow from campaign/product links and a media folder to audited HTML output."

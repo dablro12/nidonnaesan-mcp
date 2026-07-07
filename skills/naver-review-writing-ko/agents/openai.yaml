@@ -1,0 +1,4 @@
+interface:
+  display_name: "Naver Review Writing KO"
+  short_description: "Draft Korean Naver reviews with campaign-ready structure."
+  default_prompt: "Use $naver-review-writing-ko to draft a Korean Naver Blog review with natural intro, media flow, disclosure, and tags."

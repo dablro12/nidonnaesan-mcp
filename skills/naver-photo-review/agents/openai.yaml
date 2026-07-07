@@ -1,0 +1,4 @@
+interface:
+  display_name: "Naver Photo Review"
+  short_description: "네이버 리뷰용 사진 영상 선별 및 파일명 정리"
+  default_prompt: "Use $naver-photo-review to analyze a media folder, choose Naver review photo/video slots, and prepare review-ready filenames."

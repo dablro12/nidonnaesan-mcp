@@ -1,0 +1,15 @@
+[project]
+name = "yes-parrot-mcp"
+version = "0.1.0"
+description = "넵무새 - 성공적인 사회초년생활 카톡 코치 MCP"
+requires-python = ">=3.10"
+dependencies = [
+    "mcp[cli]>=1.2.0",
+]
+
+[project.scripts]
+yes-parrot = "nepmoosae_server:main"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

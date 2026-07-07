@@ -1,0 +1,4 @@
+interface:
+  display_name: "Reviewer Application Comment KO"
+  short_description: "Draft Korean campaign application comments."
+  default_prompt: "Use $reviewer-application-comment-ko to draft a natural 3-sentence Korean 신청 한마디 that reflects my Naver Blog reviewer identity, shows why I personally want the campaign, and does not feel AI-written."
