@@ -121,7 +121,7 @@ revu-1367756 시장가랑 비교해줘
 
 | 항목 | 값 |
 |------|-----|
-| Endpoint | `https://nidonnaesan-mcp.playmcp-endpoint.kakaocloud.io/mcp` |
+| Endpoint | `https://nidonnaesan-mcp-server.playmcp-endpoint.kakaocloud.io/mcp` |
 | 식별자 | `nidonnaesan` |
 | 툴 수 | 11개 (v1.1: `get_urgent_campaigns` 추가) |
 

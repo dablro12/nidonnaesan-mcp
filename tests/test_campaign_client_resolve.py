@@ -13,9 +13,9 @@ def test_numeric_suffix() -> None:
 
 @pytest.mark.asyncio
 async def test_resolve_campaign_id_by_suffix() -> None:
-    from campaign_client import fetch_all_campaigns
+    from campaign_client import _set_store
 
-    await fetch_all_campaigns()
+    _set_store([{"id": "revu-1367756", "title": "test"}])
     c = await resolve_campaign_id("1367756")
     assert c is not None
     assert str(c["id"]).endswith("1367756")

@@ -24,6 +24,7 @@ from campaign_recommender import recommend_campaigns
 from naver_shopping import search_market_price
 from nidonnaesan_server import (
     compare_product_market_price,
+    generate_application_comment,
     get_campaign_recommendations,
     get_sponsorship_tips,
     get_today_hot_campaigns,
@@ -141,6 +142,13 @@ async def build_scenarios() -> list[Scenario]:
             compare_product_market_price,
             {"campaign_id": str(sample_id).split("-")[-1]},
             ["naver"],
+        ),
+        Scenario(
+            "medium",
+            "신청한마디 제품명만",
+            generate_application_comment,
+            {"product_name": "텀블러 살균 건조기"},
+            [],
         ),
         Scenario(
             "hard",

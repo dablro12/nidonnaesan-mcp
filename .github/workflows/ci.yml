@@ -19,6 +19,9 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt pytest pytest-asyncio
 
+      - name: Sync campaign cache
+        run: python scripts/sync_campaigns.py
+
       - name: Run tests
         run: pytest tests/ -q
 

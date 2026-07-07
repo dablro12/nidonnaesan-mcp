@@ -12,7 +12,7 @@ permissions:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
-  PUBLIC_BASE_URL: ${{ vars.PUBLIC_BASE_URL || 'https://nidonnaesan-mcp.playmcp-endpoint.kakaocloud.io' }}
+  PUBLIC_BASE_URL: ${{ vars.PUBLIC_BASE_URL || 'https://nidonnaesan-mcp-server.playmcp-endpoint.kakaocloud.io' }}
 
 jobs:
   build-and-push:

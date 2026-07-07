@@ -35,12 +35,12 @@ from product_research import research_product_context
 from filter_aliases import localize_filters, normalize_sort_by
 from profile_store import filter_defaults, get_profile, set_profile
 from tips_loader import get_sponsorship_tip
+from constants import MCP_DISPLAY_NAME, MCP_ID
 from tool_descriptions import tool_description
 
 MCP_HOST = os.getenv("MCP_HOST", "0.0.0.0")
 MCP_PORT = int(os.getenv("MCP_PORT", "8000"))
-SERVICE = "nidonnaesan(니돈내산)"
-MCP_ID = "nidonnaesan"
+SERVICE = MCP_DISPLAY_NAME
 
 mcp = FastMCP(MCP_ID, host=MCP_HOST, port=MCP_PORT)
 
