@@ -94,9 +94,9 @@ TOOL_BASE_KO: dict[str, str] = {
     "compare_product_market_price": "네이버 쇼핑 시장가와 협찬 제공가·체험가치를 비교합니다.",
     "analyze_channel_profile": "네이버 블로그 URL로 채널 주제·스타일·최근 글을 분석합니다.",
     "generate_application_comment": "캠페인 ID·제품명·URL 기준 체험단 신청 한마디 3문장 초안을 생성합니다.",
-    "get_campaign_link": "campaign_id(revu-숫자)로 원본 협찬 신청 페이지 URL을 조회합니다.",
+    "get_campaign_link": "campaign_id를 기반으로 원본 협찬 신청 페이지 URL을 조회합니다.",
     "run_sponsorship_aptitude_test": "협찬 적성 테스트로 유형·추천 전략·다음 단계를 안내합니다.",
-    "get_sponsorship_tips": "선정률·플랫폼·광고표기·SEO 등 검증된 협찬 팁 29종을 제공합니다.",
+    "get_sponsorship_tips": "선정률·플랫폼·광고표기·SEO 등 검증된 협찬 선정 팁 29종을 제공합니다.",
     "set_reviewer_profile": "지역·업종·채널 URL 등 리뷰어 프로필을 저장해 추천에 반영합니다.",
     "get_reviewer_profile": "저장된 리뷰어 프로필과 필터 기본값을 조회합니다.",
 }
