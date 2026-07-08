@@ -97,6 +97,10 @@ def compare_to_markdown(data: dict[str, Any]) -> str:
         lines.append(f"| 네이버 시장가 | {min_p:,}~{max_p:,}원 |")
         if data.get("avg_price"):
             lines.append(f"| 평균가 | {data['avg_price']:,}원 |")
+    elif data.get("notice"):
+        lines.append("| 네이버 시장가 | 조회 제한 또는 일시 오류 |")
+    elif data.get("keyword"):
+        lines.append("| 네이버 시장가 | 정보 없음 |")
     if data.get("experience_value"):
         lines.append(f"| 체험가치 | {data.get('experience_value')} |")
     if data.get("notice"):

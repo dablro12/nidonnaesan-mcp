@@ -6,7 +6,7 @@ import json
 import os
 import sys
 from pathlib import Path
-from typing import Any
+from typing import Annotated, Any
 
 _APP_DIR = Path(__file__).resolve().parent / "src"
 if str(_APP_DIR) not in sys.path:
@@ -17,6 +17,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from mcp.server.fastmcp import FastMCP
+from pydantic import Field
 
 from application_comment import generate_comment
 from aptitude_test import run_aptitude_test
@@ -58,6 +59,53 @@ WRITE_PROFILE = {
     "idempotentHint": True,
 }
 
+TopN = Annotated[int, Field(description="반환할 캠페인 개수입니다. 카카오톡 표에서는 보통 3~5개를 권장합니다.")]
+TableFormat = Annotated[
+    str,
+    Field(description="표 출력 형식입니다. compact는 제품명·경쟁률·제품가격·신청 링크 4컬럼, full은 상세 비교용입니다."),
+]
+Filters = Annotated[
+    dict[str, Any] | None,
+    Field(description="추천 필터입니다. region, category, media, campaign_type 등 한국어 값을 권장합니다. 자연어가 있으면 need_text가 더 안정적입니다."),
+]
+Profile = Annotated[
+    dict[str, Any] | None,
+    Field(description="저장 프로필이 없을 때 사용할 fallback 프로필입니다. channel_url, region, preferred_category 등을 담습니다."),
+]
+NeedText = Annotated[
+    str,
+    Field(description="사용자의 협찬 니즈 문장 전체입니다. 지역·업종·배송/방문·마감·경쟁률 단서를 그대로 넣습니다."),
+]
+OptionalNeedText = Annotated[
+    str | None,
+    Field(description="사용자의 협찬 니즈 문장입니다. 예: 서울 맛집 협찬, 뷰티 배송형 경쟁 낮은 것."),
+]
+UserRequest = Annotated[
+    str | None,
+    Field(description="사용자가 보낸 원문 전체입니다. need_text와 동일하게 라우팅·필터 단서를 보존할 때 사용합니다."),
+]
+CampaignId = Annotated[
+    str,
+    Field(description="표에 나온 campaign_id입니다. 예: revu-1367756, gangnam-2229176. CMPN_xxx처럼 임의 생성하지 않습니다."),
+]
+OptionalCampaignId = Annotated[
+    str | None,
+    Field(description="표에 나온 campaign_id입니다. 모르면 product_name 또는 campaign_url을 사용합니다."),
+]
+ProductName = Annotated[
+    str | None,
+    Field(description="협찬 제품명 또는 캠페인 제목입니다. campaign_id를 모를 때 제품명으로 찾거나 시장가 비교에 사용합니다."),
+]
+ChannelUrl = Annotated[
+    str | None,
+    Field(description="네이버 블로그 URL입니다. 있으면 채널 주제와 문체를 반영해 신청 문구 품질이 좋아집니다."),
+]
+Region = Annotated[
+    str | None,
+    Field(description="지역 필터입니다. 서울, 강남, 부평처럼 한국어 지역명만 넣습니다."),
+]
+MaxDday = Annotated[int, Field(description="마감까지 남은 최대 D-day입니다. 오늘·내일 마감은 1, 오늘 마감만은 0을 사용합니다.")]
+
 
 def _resolve_filters(
     filters: dict[str, Any] | None,
@@ -94,16 +142,22 @@ def _format_recommendation_header(meta: dict[str, Any], need_text: str | None = 
     annotations={**READ_ONLY, "title": "Campaign Recommendations"},
 )
 async def get_campaign_recommendations(
-    mode: str = "by_need",
-    need_text: str | None = None,
-    user_request: str | None = None,
-    top_n: int = 5,
-    sort_by: str = "popular",
-    table_format: str = "compact",
-    filters: dict[str, Any] | None = None,
-    profile: dict[str, Any] | None = None,
-    max_dday: int = 1,
-    region: str | None = None,
+    mode: Annotated[
+        str,
+        Field(description="추천 모드입니다. by_need=니즈 맞춤, easy_pick=초보·경쟁 여유, urgent=마감 임박."),
+    ] = "by_need",
+    need_text: OptionalNeedText = None,
+    user_request: UserRequest = None,
+    top_n: TopN = 5,
+    sort_by: Annotated[
+        str,
+        Field(description="정렬 기준입니다. popular, low_competition, urgent 중 하나를 권장합니다. competition은 쓰지 않습니다."),
+    ] = "popular",
+    table_format: TableFormat = "compact",
+    filters: Filters = None,
+    profile: Profile = None,
+    max_dday: MaxDday = 1,
+    region: Region = None,
 ) -> str:
     stored = get_profile(profile_fallback=profile) or profile
     effective_filters = _resolve_filters(filters, stored)
@@ -142,10 +196,10 @@ get_campaign_recommendations.__doc__ = tool_description(
     annotations={**READ_ONLY, "title": "Today's Hot Campaigns"},
 )
 async def get_today_hot_campaigns(
-    top_n: int = 5,
-    filters: dict[str, Any] | None = None,
-    profile: dict[str, Any] | None = None,
-    table_format: str = "compact",
+    top_n: TopN = 5,
+    filters: Filters = None,
+    profile: Profile = None,
+    table_format: TableFormat = "compact",
 ) -> str:
     stored = get_profile(profile_fallback=profile) or profile
     effective_filters = _resolve_filters(filters, stored)
@@ -167,11 +221,11 @@ get_today_hot_campaigns.__doc__ = tool_description(
     annotations={**READ_ONLY, "title": "Search Campaigns by Need"},
 )
 async def search_campaigns_by_need(
-    need_text: str,
-    top_n: int = 5,
-    filters: dict[str, Any] | None = None,
-    profile: dict[str, Any] | None = None,
-    table_format: str = "compact",
+    need_text: NeedText,
+    top_n: TopN = 5,
+    filters: Filters = None,
+    profile: Profile = None,
+    table_format: TableFormat = "compact",
 ) -> str:
     stored = get_profile(profile_fallback=profile) or profile
     effective_filters = _resolve_filters(filters, stored)
@@ -202,12 +256,12 @@ search_campaigns_by_need.__doc__ = tool_description(
     annotations={**READ_ONLY, "title": "Urgent Deadline Campaigns"},
 )
 async def get_urgent_campaigns(
-    top_n: int = 5,
-    max_dday: int = 1,
-    filters: dict[str, Any] | None = None,
-    profile: dict[str, Any] | None = None,
-    region: str | None = None,
-    table_format: str = "compact",
+    top_n: TopN = 5,
+    max_dday: MaxDday = 1,
+    filters: Filters = None,
+    profile: Profile = None,
+    region: Region = None,
+    table_format: TableFormat = "compact",
 ) -> str:
     stored = get_profile(profile_fallback=profile) or profile
     effective_filters = _resolve_filters(filters, stored)
@@ -240,9 +294,12 @@ get_urgent_campaigns.__doc__ = tool_description(
     annotations={**READ_ONLY, "title": "Compare Market Price"},
 )
 async def compare_product_market_price(
-    campaign_id: str | None = None,
-    keyword: str | None = None,
-    product_name: str | None = None,
+    campaign_id: OptionalCampaignId = None,
+    keyword: Annotated[
+        str | None,
+        Field(description="네이버 쇼핑에서 검색할 제품 키워드입니다. campaign_id가 불명확하면 제품명 키워드를 우선 사용합니다."),
+    ] = None,
+    product_name: ProductName = None,
 ) -> str:
     search_kw = keyword or product_name
     campaign = None
@@ -296,7 +353,9 @@ compare_product_market_price.__doc__ = tool_description(
     description=mcp_description("analyze_channel_profile"),
     annotations={**READ_ONLY, "title": "Analyze Channel Profile"},
 )
-async def analyze_channel_profile(channel_url: str) -> str:
+async def analyze_channel_profile(
+    channel_url: Annotated[str, Field(description="분석할 네이버 블로그 URL입니다. 예: https://blog.naver.com/아이디")],
+) -> str:
     profile = await analyze_channel(channel_url)
     if profile.get("error"):
         raise ValueError(profile["error"])
@@ -311,12 +370,18 @@ analyze_channel_profile.__doc__ = f"Analyzes Naver blog channel from {SERVICE}."
     annotations={**READ_ONLY, "title": "Generate Application Comment"},
 )
 async def generate_application_comment(
-    campaign_id: str | None = None,
-    product_name: str | None = None,
-    campaign_url: str | None = None,
-    channel_url: str | None = None,
-    tone: str = "natural",
-    profile: dict[str, Any] | None = None,
+    campaign_id: OptionalCampaignId = None,
+    product_name: ProductName = None,
+    campaign_url: Annotated[
+        str | None,
+        Field(description="원본 협찬 신청 URL입니다. campaign_id와 product_name을 모를 때 캠페인 식별에 사용합니다."),
+    ] = None,
+    channel_url: ChannelUrl = None,
+    tone: Annotated[
+        str,
+        Field(description="신청 문구 톤입니다. natural, polite, appeal 중 하나를 권장합니다."),
+    ] = "natural",
+    profile: Profile = None,
 ) -> str:
     campaign, match_mode = await resolve_campaign(
         campaign_id=campaign_id,
@@ -376,7 +441,7 @@ generate_application_comment.__doc__ = tool_description(
     description=mcp_description("get_campaign_link"),
     annotations={**READ_ONLY, "title": "Get Campaign Link"},
 )
-async def get_campaign_link(campaign_id: str) -> str:
+async def get_campaign_link(campaign_id: CampaignId) -> str:
     if not campaign_id or not str(campaign_id).strip():
         raise ValueError("campaign_id가 필요합니다 (예: revu-1367756).")
     campaign = await resolve_campaign_id(campaign_id.strip())
@@ -404,7 +469,12 @@ get_campaign_link.__doc__ = f"Application URL from {SERVICE}. Use id like revu-1
     description=mcp_description("run_sponsorship_aptitude_test"),
     annotations={**READ_ONLY, "title": "Sponsorship Aptitude Test"},
 )
-def run_sponsorship_aptitude_test(answers: dict[str, Any]) -> str:
+def run_sponsorship_aptitude_test(
+    answers: Annotated[
+        dict[str, Any],
+        Field(description="적성 테스트 답변 객체입니다. 매체, 관심 업종, 지역, 가능 빈도, 선호 체험 방식 등을 담습니다."),
+    ],
+) -> str:
     result = run_aptitude_test(answers)
     return dict_to_markdown(result)
 
@@ -420,10 +490,16 @@ run_sponsorship_aptitude_test.__doc__ = tool_description(
     annotations={**READ_ONLY, "title": "Sponsorship Tips"},
 )
 def get_sponsorship_tips(
-    topic: str = "auto",
-    query: str | None = None,
-    use_profile: bool = True,
-    profile: dict[str, Any] | None = None,
+    topic: Annotated[
+        str,
+        Field(description="팁 주제입니다. auto, selection_rate, platform, ad_disclosure, blog_index, posting_omission 등을 권장합니다."),
+    ] = "auto",
+    query: Annotated[
+        str | None,
+        Field(description="사용자가 궁금해한 팁 질문 원문입니다. 예: 선정률 올리는 법, 광고 표기 방법."),
+    ] = None,
+    use_profile: Annotated[bool, Field(description="저장된 리뷰어 프로필을 반영해 팁을 맞춤 추천할지 여부입니다.")] = True,
+    profile: Profile = None,
 ) -> str:
     stored = get_profile(profile_fallback=profile) if use_profile else None
     if use_profile and profile and not stored:
@@ -455,15 +531,33 @@ get_sponsorship_tips.__doc__ = tool_description(
     annotations={**WRITE_PROFILE, "title": "Set Reviewer Profile"},
 )
 def set_reviewer_profile(
-    channel_url: str | None = None,
-    aptitude_type: str | None = None,
-    preferred_media: str | None = None,
-    preferred_category: str | None = None,
-    preferred_type: str | None = None,
-    region: str | None = None,
-    experience_level: str | None = None,
-    read_tip_ids: list[str] | None = None,
-    profile: dict[str, Any] | None = None,
+    channel_url: ChannelUrl = None,
+    aptitude_type: Annotated[
+        str | None,
+        Field(description="적성 테스트 결과 유형입니다. 예: food_explorer, beauty_creator, lifestyle_recorder."),
+    ] = None,
+    preferred_media: Annotated[
+        str | None,
+        Field(description="선호 리뷰 매체입니다. 예: 블로그, 인스타릴스, 인스타그램."),
+    ] = None,
+    preferred_category: Annotated[
+        str | None,
+        Field(description="선호 협찬 업종입니다. 예: 맛집, 뷰티, 숙박, 생활, 디지털가전."),
+    ] = None,
+    preferred_type: Annotated[
+        str | None,
+        Field(description="선호 체험 방식입니다. 방문형 또는 배송형을 권장합니다."),
+    ] = None,
+    region: Region = None,
+    experience_level: Annotated[
+        str | None,
+        Field(description="협찬 경험 수준입니다. beginner, intermediate, advanced 또는 한국어 표현을 사용할 수 있습니다."),
+    ] = None,
+    read_tip_ids: Annotated[
+        list[str] | None,
+        Field(description="이미 읽은 팁 ID 목록입니다. 중복 추천을 줄이는 데 사용합니다."),
+    ] = None,
+    profile: Profile = None,
 ) -> str:
     updates = {
         k: v
@@ -490,7 +584,7 @@ set_reviewer_profile.__doc__ = f"Save reviewer profile for {SERVICE}."
     description=mcp_description("get_reviewer_profile"),
     annotations={**READ_ONLY, "title": "Get Reviewer Profile"},
 )
-def get_reviewer_profile(profile: dict[str, Any] | None = None) -> str:
+def get_reviewer_profile(profile: Profile = None) -> str:
     stored = get_profile(profile_fallback=profile)
     if not stored:
         return dict_to_markdown(

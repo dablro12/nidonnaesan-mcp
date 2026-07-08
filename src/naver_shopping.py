@@ -9,23 +9,37 @@ import httpx
 
 NAVER_CLIENT_ID = os.getenv("NAVER_CLIENT_ID", "")
 NAVER_CLIENT_SECRET = os.getenv("NAVER_CLIENT_SECRET", "")
+_market_cache: dict[tuple[str, int], dict[str, Any]] = {}
+_rate_limited = False
 
 
 def _naver_credentials() -> tuple[str, str]:
     return os.getenv("NAVER_CLIENT_ID", ""), os.getenv("NAVER_CLIENT_SECRET", "")
 
 
+def _empty_market(keyword: str, error: str) -> dict[str, Any]:
+    return {
+        "keyword": keyword,
+        "min_price": None,
+        "max_price": None,
+        "avg_price": None,
+        "items_count": 0,
+        "error": error,
+    }
+
+
 async def search_market_price(keyword: str, *, display: int = 10) -> dict[str, Any]:
+    global _rate_limited
+
+    cache_key = (keyword.strip(), display)
+    if cache_key in _market_cache:
+        return _market_cache[cache_key]
+    if _rate_limited:
+        return _empty_market(keyword, "NAVER Shopping API rate limited. 잠시 후 다시 조회하세요.")
+
     client_id, client_secret = _naver_credentials()
     if not client_id or not client_secret:
-        return {
-            "keyword": keyword,
-            "min_price": None,
-            "max_price": None,
-            "avg_price": None,
-            "items_count": 0,
-            "error": "NAVER_CLIENT_ID/SECRET not configured",
-        }
+        return _empty_market(keyword, "NAVER_CLIENT_ID/SECRET not configured")
 
     async with httpx.AsyncClient(timeout=10.0) as client:
         resp = await client.get(
@@ -37,32 +51,40 @@ async def search_market_price(keyword: str, *, display: int = 10) -> dict[str, A
             },
         )
         if resp.status_code == 401:
-            return {
-                "keyword": keyword,
-                "min_price": None,
-                "max_price": None,
-                "avg_price": None,
-                "items_count": 0,
-                "error": (
+            result = _empty_market(
+                keyword,
+                (
                     "NAVER API 401 (errorCode 024): 검색 API 미등록 또는 Client ID/Secret 불일치. "
                     "developers.naver.com → 내 애플리케이션 → API 설정 → '검색' 추가 후 확인"
                 ),
-            }
-        resp.raise_for_status()
+            )
+            _market_cache[cache_key] = result
+            return result
+        if resp.status_code == 429:
+            _rate_limited = True
+            result = _empty_market(keyword, "NAVER Shopping API rate limited. 잠시 후 다시 조회하세요.")
+            _market_cache[cache_key] = result
+            return result
+        if resp.status_code >= 400:
+            result = _empty_market(keyword, f"NAVER Shopping API error: HTTP {resp.status_code}")
+            _market_cache[cache_key] = result
+            return result
         data = resp.json()
 
     items = data.get("items") or []
     prices = [int(item.get("lprice", 0)) for item in items if item.get("lprice")]
     if not prices:
-        return {
+        result = {
             "keyword": keyword,
             "min_price": None,
             "max_price": None,
             "avg_price": None,
             "items_count": 0,
         }
+        _market_cache[cache_key] = result
+        return result
 
-    return {
+    result = {
         "keyword": keyword,
         "min_price": min(prices),
         "max_price": max(prices),
@@ -70,3 +92,5 @@ async def search_market_price(keyword: str, *, display: int = 10) -> dict[str, A
         "items_count": len(prices),
         "sample_mall": items[0].get("mallName") if items else None,
     }
+    _market_cache[cache_key] = result
+    return result
