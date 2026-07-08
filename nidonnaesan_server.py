@@ -36,7 +36,7 @@ from filter_aliases import localize_filters, normalize_sort_by
 from profile_store import filter_defaults, get_profile, set_profile
 from tips_loader import get_sponsorship_tip
 from constants import MCP_DISPLAY_NAME, MCP_ID
-from tool_descriptions import tool_description
+from tool_descriptions import mcp_description, tool_description
 
 MCP_HOST = os.getenv("MCP_HOST", "0.0.0.0")
 MCP_PORT = int(os.getenv("MCP_PORT", "8000"))
@@ -89,7 +89,10 @@ def _format_recommendation_header(meta: dict[str, Any], need_text: str | None = 
     return "맞춤 협찬 추천"
 
 
-@mcp.tool(annotations={**READ_ONLY, "title": "Campaign Recommendations"})
+@mcp.tool(
+    description=mcp_description("get_campaign_recommendations"),
+    annotations={**READ_ONLY, "title": "Campaign Recommendations"},
+)
 async def get_campaign_recommendations(
     mode: str = "by_need",
     need_text: str | None = None,
@@ -134,7 +137,10 @@ get_campaign_recommendations.__doc__ = tool_description(
 )
 
 
-@mcp.tool(annotations={**READ_ONLY, "title": "Today's Hot Campaigns"})
+@mcp.tool(
+    description=mcp_description("get_today_hot_campaigns"),
+    annotations={**READ_ONLY, "title": "Today's Hot Campaigns"},
+)
 async def get_today_hot_campaigns(
     top_n: int = 5,
     filters: dict[str, Any] | None = None,
@@ -156,7 +162,10 @@ get_today_hot_campaigns.__doc__ = tool_description(
 )
 
 
-@mcp.tool(annotations={**READ_ONLY, "title": "Search Campaigns by Need"})
+@mcp.tool(
+    description=mcp_description("search_campaigns_by_need"),
+    annotations={**READ_ONLY, "title": "Search Campaigns by Need"},
+)
 async def search_campaigns_by_need(
     need_text: str,
     top_n: int = 5,
@@ -188,7 +197,10 @@ search_campaigns_by_need.__doc__ = tool_description(
 )
 
 
-@mcp.tool(annotations={**READ_ONLY, "title": "Urgent Deadline Campaigns"})
+@mcp.tool(
+    description=mcp_description("get_urgent_campaigns"),
+    annotations={**READ_ONLY, "title": "Urgent Deadline Campaigns"},
+)
 async def get_urgent_campaigns(
     top_n: int = 5,
     max_dday: int = 1,
@@ -223,7 +235,10 @@ get_urgent_campaigns.__doc__ = tool_description(
 )
 
 
-@mcp.tool(annotations={**READ_ONLY, "title": "Compare Market Price"})
+@mcp.tool(
+    description=mcp_description("compare_product_market_price"),
+    annotations={**READ_ONLY, "title": "Compare Market Price"},
+)
 async def compare_product_market_price(
     campaign_id: str | None = None,
     keyword: str | None = None,
@@ -277,7 +292,10 @@ compare_product_market_price.__doc__ = tool_description(
 )
 
 
-@mcp.tool(annotations={**READ_ONLY, "title": "Analyze Channel Profile"})
+@mcp.tool(
+    description=mcp_description("analyze_channel_profile"),
+    annotations={**READ_ONLY, "title": "Analyze Channel Profile"},
+)
 async def analyze_channel_profile(channel_url: str) -> str:
     profile = await analyze_channel(channel_url)
     if profile.get("error"):
@@ -288,7 +306,10 @@ async def analyze_channel_profile(channel_url: str) -> str:
 analyze_channel_profile.__doc__ = f"Analyzes Naver blog channel from {SERVICE}."
 
 
-@mcp.tool(annotations={**READ_ONLY, "title": "Generate Application Comment"})
+@mcp.tool(
+    description=mcp_description("generate_application_comment"),
+    annotations={**READ_ONLY, "title": "Generate Application Comment"},
+)
 async def generate_application_comment(
     campaign_id: str | None = None,
     product_name: str | None = None,
@@ -351,7 +372,10 @@ generate_application_comment.__doc__ = tool_description(
 )
 
 
-@mcp.tool(annotations={**READ_ONLY, "title": "Get Campaign Link"})
+@mcp.tool(
+    description=mcp_description("get_campaign_link"),
+    annotations={**READ_ONLY, "title": "Get Campaign Link"},
+)
 async def get_campaign_link(campaign_id: str) -> str:
     if not campaign_id or not str(campaign_id).strip():
         raise ValueError("campaign_id가 필요합니다 (예: revu-1367756).")
@@ -376,7 +400,10 @@ async def get_campaign_link(campaign_id: str) -> str:
 get_campaign_link.__doc__ = f"Application URL from {SERVICE}. Use id like revu-1367756."
 
 
-@mcp.tool(annotations={**READ_ONLY, "title": "Sponsorship Aptitude Test"})
+@mcp.tool(
+    description=mcp_description("run_sponsorship_aptitude_test"),
+    annotations={**READ_ONLY, "title": "Sponsorship Aptitude Test"},
+)
 def run_sponsorship_aptitude_test(answers: dict[str, Any]) -> str:
     result = run_aptitude_test(answers)
     return dict_to_markdown(result)
@@ -388,7 +415,10 @@ run_sponsorship_aptitude_test.__doc__ = tool_description(
 )
 
 
-@mcp.tool(annotations={**READ_ONLY, "title": "Sponsorship Tips"})
+@mcp.tool(
+    description=mcp_description("get_sponsorship_tips"),
+    annotations={**READ_ONLY, "title": "Sponsorship Tips"},
+)
 def get_sponsorship_tips(
     topic: str = "auto",
     query: str | None = None,
@@ -420,7 +450,10 @@ get_sponsorship_tips.__doc__ = tool_description(
 )
 
 
-@mcp.tool(annotations={**WRITE_PROFILE, "title": "Set Reviewer Profile"})
+@mcp.tool(
+    description=mcp_description("set_reviewer_profile"),
+    annotations={**WRITE_PROFILE, "title": "Set Reviewer Profile"},
+)
 def set_reviewer_profile(
     channel_url: str | None = None,
     aptitude_type: str | None = None,
@@ -453,7 +486,10 @@ def set_reviewer_profile(
 set_reviewer_profile.__doc__ = f"Save reviewer profile for {SERVICE}."
 
 
-@mcp.tool(annotations={**READ_ONLY, "title": "Get Reviewer Profile"})
+@mcp.tool(
+    description=mcp_description("get_reviewer_profile"),
+    annotations={**READ_ONLY, "title": "Get Reviewer Profile"},
+)
 def get_reviewer_profile(profile: dict[str, Any] | None = None) -> str:
     stored = get_profile(profile_fallback=profile)
     if not stored:
