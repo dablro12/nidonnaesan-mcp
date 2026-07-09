@@ -19,6 +19,7 @@ EXPECTED = {
     "get_reviewer_profile",
 }
 SERVICE_NAME = "니돈내산 - 협찬 받고, 추천까지 한 번에"
+SERVICE_IDENTIFIER = f"nidonnaesan({SERVICE_NAME})"
 
 
 def test_all_tools_have_description() -> None:
@@ -29,6 +30,8 @@ def test_all_tools_have_description() -> None:
         for t in tools:
             assert t.description and t.description.strip(), f"missing description: {t.name}"
             assert SERVICE_NAME in t.description, f"missing service name: {t.name}"
+            assert SERVICE_IDENTIFIER in t.description, f"missing service identifier: {t.name}"
+            assert not t.description.startswith(SERVICE_NAME), t.name
             assert "OUTPUT RULE" not in t.description, t.name
             assert "USE FIRST" not in t.description, t.name
             assert len(t.description) < 200, t.name

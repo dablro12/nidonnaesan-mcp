@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 SERVICE_NAME = "니돈내산 - 협찬 받고, 추천까지 한 번에"
+SERVICE_IDENTIFIER = f"nidonnaesan({SERVICE_NAME})"
 
 TABLE_RULE = """
 OUTPUT RULE (MANDATORY):
@@ -88,19 +89,19 @@ USE for: 내 프로필 보여줘 / 저장된 설정 확인.
 """.strip(),
 }
 
-TOOL_BASE_KO: dict[str, str] = {
-    "get_campaign_recommendations": "협찬 통합 추천. 초보·니즈 맞춤·마감 임박·경쟁률 낮은 순으로 경쟁률·제품가격·신청 링크 표를 반환합니다.",
-    "get_today_hot_campaigns": "오늘 신청자가 많은 인기 협찬 TOP N을 플랫폼별로 다양하게 표로 보여줍니다.",
-    "search_campaigns_by_need": "사용자 문장(지역·업종·키워드)으로 협찬 캠페인을 자연어 검색합니다.",
-    "get_urgent_campaigns": "D-0/D-1 마감 임박 협찬을 지역·필터와 함께 표로 반환합니다.",
-    "compare_product_market_price": "네이버 쇼핑 시장가와 협찬 제공가·체험가치를 비교합니다.",
-    "analyze_channel_profile": "네이버 블로그 URL로 채널 주제·스타일·최근 글을 분석합니다.",
-    "generate_application_comment": "캠페인 ID·제품명·URL 기준 체험단 신청 한마디 3문장 초안을 생성합니다.",
-    "get_campaign_link": "campaign_id를 기반으로 원본 협찬 신청 페이지 URL을 조회합니다.",
-    "run_sponsorship_aptitude_test": "협찬 적성 테스트로 유형·추천 전략·다음 단계를 안내합니다.",
-    "get_sponsorship_tips": "선정률·플랫폼·광고표기·SEO 등 검증된 협찬 선정 팁 29종을 제공합니다.",
-    "set_reviewer_profile": "지역·업종·채널 URL 등 리뷰어 프로필을 저장해 추천에 반영합니다.",
-    "get_reviewer_profile": "저장된 리뷰어 프로필과 필터 기본값을 조회합니다.",
+TOOL_BASE_EN: dict[str, str] = {
+    "get_campaign_recommendations": "Recommends sponsorship campaigns by need, ease, urgency, and competition with price and apply links",
+    "get_today_hot_campaigns": "Returns today's popular sponsorship campaigns across platforms as a Markdown table",
+    "search_campaigns_by_need": "Searches sponsorship campaigns from natural-language needs such as region, category, and keyword",
+    "get_urgent_campaigns": "Returns campaigns closing soon, including D-0 and D-1 opportunities",
+    "compare_product_market_price": "Compares market price, offered benefit, and experience value for a sponsored product",
+    "analyze_channel_profile": "Analyzes a Naver Blog channel's topic, style, and recent posts",
+    "generate_application_comment": "Generates a three-sentence application comment from a campaign, product, or URL",
+    "get_campaign_link": "Returns the original application page URL for a campaign ID",
+    "run_sponsorship_aptitude_test": "Runs a sponsorship aptitude test and suggests a reviewer strategy",
+    "get_sponsorship_tips": "Returns practical sponsorship tips for selection, platforms, disclosure, and blog SEO",
+    "set_reviewer_profile": "Saves reviewer profile preferences such as region, category, channel URL, and media type",
+    "get_reviewer_profile": "Returns the saved reviewer profile and default campaign filters",
 }
 
 
@@ -115,11 +116,11 @@ def tool_description(base: str, chain_key: str) -> str:
 
 def mcp_description(chain_key: str) -> str:
     """PlayMCP 마켓·심사 UI용 — 한 줄 기능 설명만 노출."""
-    base = TOOL_BASE_KO.get(chain_key, chain_key).strip()
-    return f"{SERVICE_NAME} - {base}"
+    base = TOOL_BASE_EN.get(chain_key, chain_key).strip().rstrip(".")
+    return f"{base}. {SERVICE_IDENTIFIER}."
 
 
 def agent_tool_guide(chain_key: str) -> str:
     """에이전트 라우팅용 상세 가이드 (MCP description에는 넣지 않음)."""
-    base = TOOL_BASE_KO.get(chain_key, chain_key)
+    base = TOOL_BASE_EN.get(chain_key, chain_key)
     return tool_description(base, chain_key)
