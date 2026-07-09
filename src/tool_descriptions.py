@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+SERVICE_NAME = "니돈내산 - 협찬 받고, 추천까지 한 번에"
+
 TABLE_RULE = """
 OUTPUT RULE (MANDATORY):
 - Return the tool's Markdown table **as-is**. Do NOT convert to bullet lists or plain prose.
@@ -113,7 +115,8 @@ def tool_description(base: str, chain_key: str) -> str:
 
 def mcp_description(chain_key: str) -> str:
     """PlayMCP 마켓·심사 UI용 — 한 줄 기능 설명만 노출."""
-    return TOOL_BASE_KO.get(chain_key, chain_key).strip()
+    base = TOOL_BASE_KO.get(chain_key, chain_key).strip()
+    return f"{SERVICE_NAME} - {base}"
 
 
 def agent_tool_guide(chain_key: str) -> str:
